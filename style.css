@@ -1,63 +1,39 @@
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'General Sans', Arial, sans-serif;
   background: #f7f7f7;
-  color: #222;
+  color: #111;
 }
 
-header {
-  background: white;
-  padding: 20px;
-  text-align: center;
-  border-bottom: 1px solid #ddd;
-}
-
-nav a {
-  margin: 0 10px;
-  text-decoration: none;
-  color: #333;
-  font-weight: bold;
-}
-
+/* HERO — Nome gigante centrato */
 .hero {
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  padding: 100px 20px;
+  padding: 40px 20px;
 }
 
-.hero h2 {
-  font-size: 32px;
+.main-name {
+  font-size: clamp(48px, 10vw, 140px);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -2px;
 }
 
-.btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 20px;
-  background: black;
-  color: white;
-  text-decoration: none;
+.subtitle {
+  font-size: clamp(18px, 2.5vw, 32px);
+  font-weight: 500;
+  margin-top: 10px;
+  color: #555;
 }
 
-.content {
-  max-width: 800px;
-  margin: 60px auto;
-  padding: 0 20px;
-}
-
-.grid {
-  display: grid;
-  gap: 20px;
-}
-
-.card {
-  background: white;
-  padding: 20px;
-  border: 1px solid #ddd;
-}
-
+/* Footer minimal */
 footer {
   text-align: center;
-  padding: 30px;
-  margin-top: 60px;
+  padding: 30px 20px;
   font-size: 14px;
-  color: #666;
+  color: #777;
 }
