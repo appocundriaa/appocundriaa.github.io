@@ -202,8 +202,6 @@
       while (g.firstChild) g.removeChild(g.firstChild);
       if (!text) return;
 
-      // scala: 512 user units, ma la misura canvas è in px.
-      // Usiamo un bridge semplice: misuriamo in px e convertiamo usando la larghezza reale del render.
       const svgRect = svg.getBoundingClientRect();
       const pxPerSvg = svgRect.width / 512;
 
@@ -211,9 +209,9 @@
       const weight = 600;
       const lineHeightRatio = 1.10;
 
-      const TOP = 6;     // padding in SVG units
-      const BOTTOM = 6;  // padding in SVG units
-      const SAFE = 0.94; // sicurezza per non "toccare" il clip
+      const TOP = 6;
+      const BOTTOM = 6;
+      const SAFE = 0.94;
 
       function tryFit(size){
         const lineH = size * lineHeightRatio;
@@ -227,10 +225,9 @@
         const lines = [];
 
         for (let i = 0; i < maxLines && idx < text.length; i++){
-          const y = MIN_Y + TOP + i * lineH; // y in SVG units (top line)
+          const y = MIN_Y + TOP + i * lineH;
           const yMid = y + lineH * 0.55;
 
-          // epsilon per non cadere esattamente sui vertici
           const eps = 0.001;
           const yClamped = Math.max(MIN_Y + eps, Math.min(MAX_Y - eps, yMid));
 
@@ -241,7 +238,6 @@
           let lastGood = '';
           let lastGoodIdx = idx;
 
-          // wrap char-by-char (così non "perdi" testo)
           while (idx < text.length){
             const next = chunk + text[idx];
             if (measure(next) <= maxWpx){
@@ -268,7 +264,6 @@
         return { finished: idx >= text.length, lines, lineH };
       }
 
-      // font più grande che fa entrare tutto
       const MAX = 44;
       const MIN = 8;
       let best = null;
@@ -284,7 +279,6 @@
         best = { fontSize: MIN, ...tryFit(MIN) };
       }
 
-      // Render: un <text> per riga, centrato a x=256
       for (const line of best.lines){
         const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
         t.setAttribute('x', '256');
@@ -294,7 +288,7 @@
         t.setAttribute('font-family', family);
         t.setAttribute('font-weight', String(weight));
         t.setAttribute('font-size', String(best.fontSize));
-        t.setAttribute('fill', '#0b0b0b'); // uguale al tuo --text
+        t.setAttribute('fill', '#0b0b0b');
         t.textContent = line.text;
         g.appendChild(t);
       }
@@ -375,6 +369,12 @@
       const y1 = ((ra.top + ra.height/2) - fr.top) / fr.height * 100;
       const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
       const y2 = ((rb.top + rb.height/2) - fr.top) / fr.height * 100;
+
+      // ✅ COLORE RANDOM OGNI VOLTA
+      const hue = Math.floor(Math.random() * 360);
+      const sat = 75 + Math.random() * 20;   // 75–95%
+      const light = 35 + Math.random() * 20; // 35–55%
+      s.setAttribute('stroke', `hsl(${hue} ${sat}% ${light}%)`);
 
       const r = seededRand(seedKey);
 
