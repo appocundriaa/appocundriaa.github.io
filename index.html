@@ -20,70 +20,94 @@
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- T-SHIRT (SVG clip robusto) -->
+        <!-- T-SHIRT CLIP (robusto) -->
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
           <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
-              <!-- silhouette: più “icona-like” (spalle inclinate + maniche a gradino + collo scavato) -->
+              <!--
+                CLIP: forma t-shirt "outline" come la tua (maniche inclinate + gradino + collo tondo).
+                Nota: NON disegniamo il bordo sopra al testo, così il testo non viene mai coperto.
+              -->
               <clipPath id="tshirtClip" clipPathUnits="userSpaceOnUse">
                 <path d="
-                  M140 120
-                  L90 155
-                  L120 230
-                  L180 205
-                  L180 440
-                  L332 440
-                  L332 205
-                  L392 230
-                  L422 155
-                  L372 120
-                  C345 150 310 165 256 165
-                  C202 165 167 150 140 120
-                  Z
-
-                  M205 120
-                  C220 150 236 165 256 165
-                  C276 165 292 150 307 120
-                  C292 98 276 88 256 88
-                  C236 88 220 98 205 120
+                  M 256 78
+                  C 218 78 198 90 182 112
+                  L 86 150
+                  L 116 256
+                  L 188 236
+                  L 188 456
+                  L 324 456
+                  L 324 236
+                  L 396 256
+                  L 426 150
+                  L 330 112
+                  C 314 90 294 78 256 78
                   Z
                 "/>
               </clipPath>
 
-              <!-- bordo (opzionale, invisibile di default via CSS) -->
-              <path id="tshirtOutline" d="
-                M140 120
-                L90 155
-                L120 230
-                L180 205
-                L180 440
-                L332 440
-                L332 205
-                L392 230
-                L422 155
-                L372 120
-                C345 150 310 165 256 165
-                C202 165 167 150 140 120
-                Z
-
-                M205 120
-                C220 150 236 165 256 165
-                C276 165 292 150 307 120
-                C292 98 276 88 256 88
-                C236 88 220 98 205 120
-                Z
-              "/>
+              <!-- “buco” del collo: togliamo testo dove sarebbe il buco interno -->
+              <mask id="tshirtMask">
+                <rect x="0" y="0" width="512" height="512" fill="#fff"/>
+                <!-- foro collo -->
+                <path d="
+                  M 256 88
+                  C 232 88 214 98 202 116
+                  C 216 142 235 156 256 156
+                  C 277 156 296 142 310 116
+                  C 298 98 280 88 256 88
+                  Z
+                " fill="#000"/>
+              </mask>
             </defs>
 
-            <!-- contenuto clippato -->
-            <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtClip)">
-              <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
-                <div id="tshirtText" class="tshirt-text"></div>
-              </div>
-            </foreignObject>
+            <!--
+              Il testo è CLIPPATO dalla maglietta e in più MASCHERATO dal “buco del collo”.
+              Così parte subito “a filo” ma non invade il buco.
+            -->
+            <g clip-path="url(#tshirtClip)" mask="url(#tshirtMask)">
+              <foreignObject x="0" y="0" width="512" height="512">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
+                  <div id="tshirtText" class="tshirt-text"></div>
+                </div>
+              </foreignObject>
+            </g>
 
-            <!-- outline debug (se vuoi vederlo, abilita in CSS) -->
-            <use href="#tshirtOutline" class="tshirt-debug-outline"></use>
+            <!-- opzionale: ombra “grigia” tipo icona (MA dietro al testo, non sopra) -->
+            <path class="tshirt-shadow"
+              d="M 256 78
+                 C 218 78 198 90 182 112
+                 L 86 150
+                 L 116 256
+                 L 188 236
+                 L 188 456
+                 L 324 456
+                 L 324 236
+                 L 396 256
+                 L 426 150
+                 L 330 112
+                 C 314 90 294 78 256 78
+                 Z"
+            />
+
+            <!-- opzionale: bordo nero (se lo vuoi visibile)
+                 IMPORTANTE: se lo attivi, coprirà un po’ il testo. Per ora è spento via CSS. -->
+            <path class="tshirt-outline"
+              d="M 256 78
+                 C 218 78 198 90 182 112
+                 L 86 150
+                 L 116 256
+                 L 188 236
+                 L 188 456
+                 L 324 456
+                 L 324 236
+                 L 396 256
+                 L 426 150
+                 L 330 112
+                 C 314 90 294 78 256 78
+                 Z"
+            />
+
           </svg>
         </div>
 
@@ -105,10 +129,9 @@
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
-            <!-- scarabocchio: doppio path per effetto “hand-drawn” -->
+            <!-- UNO SOLO scarabocchio -->
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <path id="scribbleA" d="" fill="none"></path>
-              <path id="scribbleB" d="" fill="none"></path>
+              <path id="scribble" d="" fill="none"></path>
             </svg>
 
             <div class="filter-group" id="categoryGroup">
@@ -173,46 +196,42 @@
   </main>
 
   <script>
-    // -------------------------
-    // 1) monta testo dentro svg
-    // -------------------------
+    // 1) monta testo nel foreignObject
     function mountTshirtText() {
       const src = document.getElementById('bioSource');
       const target = document.getElementById('tshirtText');
       if (!src || !target) return;
+      // normalizzo spazi, ma NON cambio parole
       target.textContent = src.textContent.trim().replace(/\s+/g, ' ');
     }
 
-    // -------------------------
-    // 2) fit font-size nel box della maglietta
-    //    (lavora sul contenitore HTML dentro foreignObject)
-    // -------------------------
+    // 2) FIT: vogliamo che il testo copra TUTTO l’interno.
+    //    Strategia: parti da grande e riduci finché non "overflowa" nel box.
+    //    In più: forziamo word-break per riempire bene.
     function fitTshirtText() {
       const fo = document.querySelector('.tshirt-fo');
       const t = document.getElementById('tshirtText');
       if (!fo || !t) return;
 
-      // reset
-      t.style.fontSize = '14px';
-
       const maxH = fo.clientHeight;
       const maxW = fo.clientWidth;
 
-      // riduci finché entra
-      let size = 14;
-      for (let i = 0; i < 40; i++) {
+      // parto più grande
+      let size = 22;
+      t.style.fontSize = size + 'px';
+
+      // riduco finché tutto rientra nel box
+      for (let i = 0; i < 80; i++) {
         const tooTall = t.scrollHeight > maxH;
         const tooWide = t.scrollWidth > maxW;
         if (!tooTall && !tooWide) break;
         size -= 0.5;
         t.style.fontSize = size + 'px';
-        if (size <= 9) break;
+        if (size <= 10) break;
       }
     }
 
-    // -------------------------
     // 3) filtri + lista
-    // -------------------------
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
@@ -247,20 +266,15 @@
 
       bind(categoryGroup, 'category');
       bind(tagGroup, 'tag');
+
       setActive(categoryGroup, state.category);
       setActive(tagGroup, state.tag);
       updateList();
-
-      // prima draw
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // -------------------------
-    // 4) scarabocchio hand-drawn (stabile, ma “imperfetto”)
-    //    - genera punti su una curva e aggiunge jitter
-    // -------------------------
+    // 4) UNO scarabocchio “hand drawn”
     function seededRand(seedStr) {
-      // xorshift32 semplice
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
       let x = h >>> 0;
@@ -276,13 +290,12 @@
       const stackEl = document.getElementById('filterStack');
       const categoryGroup = document.getElementById('categoryGroup');
       const tagGroup = document.getElementById('tagGroup');
-      const aPath = document.getElementById('scribbleA');
-      const bPath = document.getElementById('scribbleB');
-      if (!stackEl || !categoryGroup || !tagGroup || !aPath || !bPath) return;
+      const path = document.getElementById('scribble');
+      if (!stackEl || !categoryGroup || !tagGroup || !path) return;
 
       const a = categoryGroup.querySelector('.pill.is-active');
       const b = tagGroup.querySelector('.pill.is-active');
-      if (!a || !b) { aPath.setAttribute('d',''); bPath.setAttribute('d',''); return; }
+      if (!a || !b) { path.setAttribute('d',''); return; }
 
       const fr = stackEl.getBoundingClientRect();
       const ra = a.getBoundingClientRect();
@@ -295,13 +308,12 @@
 
       const r = seededRand(seedKey);
 
-      // curva base (S morbida)
+      // curva base
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 + (y2 - y1) * 0.10 - 10;
+      const cy1 = y1 + (y2 - y1) * 0.20 - 8;
       const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y1 + (y2 - y1) * 0.90 + 10;
+      const cy2 = y1 + (y2 - y1) * 0.80 + 8;
 
-      // campiona la bezier e jittera punti
       function bezier(t){
         const mt = 1 - t;
         const x = mt*mt*mt*x1 + 3*mt*mt*t*cx1 + 3*mt*t*t*cx2 + t*t*t*x2;
@@ -309,46 +321,38 @@
         return {x,y};
       }
 
-      function makeScribble(offset = 0) {
-        const pts = [];
-        const steps = 18;
-        for (let i = 0; i <= steps; i++) {
-          const t = i / steps;
-          const p = bezier(t);
+      const pts = [];
+      const steps = 16;
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const p = bezier(t);
 
-          // jitter: più forte a metà, più leggero ai capi
-          const amp = (Math.sin(Math.PI * t)) * (1.8 + offset);
-          const jx = (r() - 0.5) * amp * 2.2;
-          const jy = (r() - 0.5) * amp * 2.8;
-
-          pts.push({ x: p.x + jx, y: p.y + jy });
-        }
-
-        // path con curve morbide (quadratic)
-        let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
-        for (let i = 1; i < pts.length - 1; i++) {
-          const cpx = pts[i].x;
-          const cpy = pts[i].y;
-          const nx = (pts[i].x + pts[i+1].x) / 2;
-          const ny = (pts[i].y + pts[i+1].y) / 2;
-          d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
-        }
-        d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
-        return d;
+        const amp = Math.sin(Math.PI * t) * 2.4; // wobble
+        const jx = (r() - 0.5) * amp * 2.2;
+        const jy = (r() - 0.5) * amp * 2.8;
+        pts.push({ x: p.x + jx, y: p.y + jy });
       }
 
-      aPath.setAttribute('d', makeScribble(0));
-      bPath.setAttribute('d', makeScribble(0.7));
+      let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+      for (let i = 1; i < pts.length - 1; i++) {
+        const cpx = pts[i].x;
+        const cpy = pts[i].y;
+        const nx = (pts[i].x + pts[i+1].x) / 2;
+        const ny = (pts[i].y + pts[i+1].y) / 2;
+        d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
+      }
+      d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
+
+      path.setAttribute('d', d);
     }
 
-    // init
     (function init(){
       mountTshirtText();
       setupFilters();
       fitTshirtText();
+
       window.addEventListener('resize', () => {
         fitTshirtText();
-        // ridisegna scribble con seed corrente (leggo attivi)
         const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
         const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
         drawScribble(c + '|' + t);
