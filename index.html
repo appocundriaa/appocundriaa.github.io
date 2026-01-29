@@ -143,46 +143,184 @@
   </main>
 
   <script>
-    // 1) monta testo
-    function mountTshirtText() {
-      const src = document.getElementById('bioSource');
-      const target = document.getElementById('tshirtText');
-      if (!src || !target) return;
+    // ======== TESTO T-SHIRT: righe controllate (niente testo "mancante") ========
 
-      // NON cambia contenuto, solo normalizza spazi per wrapping stabile
-      target.textContent = src.textContent.trim().replace(/\s+/g, ' ');
+    function getBioText(){
+      const src = document.getElementById('bioSource');
+      // NON cambia contenuto, solo normalizza spazi per stabilità layout
+      return (src?.textContent || '').trim().replace(/\s+/g, ' ');
     }
 
-    // 2) fit: vogliamo che il testo RIEMPIA l’interno e parta dall’alto
-    function fitTshirtTextFill() {
+    function makeMeasure(font){
+      const c = document.createElement('canvas');
+      const ctx = c.getContext('2d');
+      ctx.font = font;
+      return (str) => ctx.measureText(str).width;
+    }
+
+    // La tua sagoma è un POLIGONO (M + L + Z). La usiamo anche per calcolare la larghezza
+    // disponibile ad ogni altezza (così il testo segue ESATTAMENTE la forma).
+    const CLIP_POLY = [
+      {x:140, y:115},
+      {x:372, y:115},
+      {x:460, y:195},
+      {x:420, y:250},
+      {x:350, y:230},
+      {x:350, y:430},
+      {x:162, y:430},
+      {x:162, y:230},
+      {x: 92, y:250},
+      {x: 52, y:195}
+    ];
+
+    // Intersezioni di un segmento con una scanline orizzontale y:
+    function segIntersectX(p1, p2, y){
+      // includiamo metà-open per evitare doppi conteggi sui vertici
+      const y1 = p1.y, y2 = p2.y;
+      const minY = Math.min(y1, y2);
+      const maxY = Math.max(y1, y2);
+      if (y < minY || y >= maxY) return null; // [min, max)
+      if (y1 === y2) return null; // orizzontale: ignora
+      const t = (y - y1) / (y2 - y1);
+      const x = p1.x + t * (p2.x - p1.x);
+      return x;
+    }
+
+    function widthAtSvgY(y){
+      const xs = [];
+      for (let i = 0; i < CLIP_POLY.length; i++){
+        const a = CLIP_POLY[i];
+        const b = CLIP_POLY[(i + 1) % CLIP_POLY.length];
+        const x = segIntersectX(a, b, y);
+        if (x !== null) xs.push(x);
+      }
+      if (xs.length < 2) return 0;
+      xs.sort((m,n) => m - n);
+      // per poligono semplice convesso/quasi, estremi = sinistra/destra
+      return xs[xs.length - 1] - xs[0];
+    }
+
+    function layoutTshirtText(){
       const fo = document.querySelector('.tshirt-fo');
-      const t = document.getElementById('tshirtText');
-      if (!fo || !t) return;
+      const host = document.getElementById('tshirtText');
+      if (!fo || !host) return;
 
-      // reset
-      t.style.fontSize = '10px';
+      const text = getBioText();
+      host.innerHTML = '';
+      if (!text) return;
 
-      const maxH = fo.clientHeight;
-      const maxW = fo.clientWidth;
+      const W = fo.clientWidth;
+      const H = fo.clientHeight;
 
-      // fase A: cresce finché sta dentro (massimizza font size)
-      let size = 10;
-      for (let i = 0; i < 120; i++) {
-        t.style.fontSize = size + 'px';
-        const tooTall = t.scrollHeight > maxH;
-        const tooWide = t.scrollWidth > maxW;
-        if (tooTall || tooWide) {
-          size -= 0.5;
-          t.style.fontSize = size + 'px';
-          break;
+      // padding minimo: vuoi che parta praticamente subito
+      const topPad = Math.round(H * 0.01);
+      const botPad = Math.round(H * 0.01);
+
+      // tipografia (coerente col tuo CSS)
+      const weight = 600;
+      const family = 'KeroinePRO, "General Sans", Arial, sans-serif';
+      const lineHeightRatio = 1.10;
+
+      // margine di sicurezza: se usiamo la larghezza esatta, alcune lettere possono "sbordare"
+      // (kerning, hinting). Quindi teniamo un 96% della larghezza reale.
+      const SAFE = 0.96;
+
+      function tryFit(fontSize){
+        const lineH = fontSize * lineHeightRatio;
+        const usableH = Math.max(1, H - topPad - botPad);
+        const maxLines = Math.max(1, Math.floor(usableH / lineH));
+
+        const font = `${weight} ${fontSize}px ${family}`;
+        const measure = makeMeasure(font);
+
+        let idx = 0;
+        const lines = [];
+
+        for (let i = 0; i < maxLines && idx < text.length; i++){
+          // y della riga in px (centro riga), poi convertito in SVG y (0..512)
+          const yPx = topPad + i * lineH + lineH * 0.55;
+          const ySvg = (yPx / H) * 512;
+
+          const wSvg = widthAtSvgY(ySvg) * SAFE;
+          const maxWpx = Math.max(8, (wSvg / 512) * W);
+
+          let chunk = '';
+          let lastGood = '';
+          let lastGoodIdx = idx;
+
+          // riempi char-by-char finché ci sta
+          while (idx < text.length){
+            const next = chunk + text[idx];
+            if (measure(next) <= maxWpx){
+              chunk = next;
+              lastGood = chunk;
+              lastGoodIdx = idx + 1;
+              idx++;
+            } else {
+              break;
+            }
+          }
+
+          // se non entra nemmeno 1 char (riga troppo stretta), forziamo 1 char
+          if (!lastGood){
+            lastGood = text[idx] || '';
+            lastGoodIdx = idx + 1;
+            idx = lastGoodIdx;
+          }
+
+          // togli solo spazi a inizio riga (non tocchiamo il testo)
+          lines.push({
+            text: lastGood.replace(/^\s+/, ''),
+            maxWpx
+          });
+
+          idx = lastGoodIdx;
         }
-        size += 0.5;
+
+        return {
+          finished: idx >= text.length,
+          lines,
+          lineH
+        };
       }
 
-      // fase B: (rimossa: ora gestiamo la posizione da CSS con margin-top)
+      // Cerca il font più grande che permette di vedere TUTTO il testo
+      const MAX = 44;
+      const MIN = 8;
+      let best = null;
+
+      for (let s = MAX; s >= MIN; s -= 0.5){
+        const res = tryFit(s);
+        if (res.finished){
+          best = { fontSize: s, ...res };
+          break;
+        }
+      }
+
+      // fallback (comunque mostra il massimo possibile, senza crash)
+      if (!best){
+        const res = tryFit(MIN);
+        best = { fontSize: MIN, ...res };
+      }
+
+      // Render
+      host.style.fontSize = best.fontSize + 'px';
+      host.style.fontWeight = String(weight);
+      host.style.lineHeight = String(lineHeightRatio);
+      host.style.paddingTop = topPad + 'px';
+      host.style.paddingBottom = botPad + 'px';
+
+      for (const line of best.lines){
+        const div = document.createElement('div');
+        div.className = 'tline';
+        div.style.width = Math.round(line.maxWpx) + 'px';
+        div.textContent = line.text;
+        host.appendChild(div);
+      }
     }
 
-    // 3) filtri base
+    // ======== FILTRI (come avevi) ========
+
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
@@ -223,7 +361,8 @@
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // 4) scarabocchio singolo (hand drawn)
+    // ======== scarabocchio singolo (come avevi) ========
+
     function seededRand(seedStr) {
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
@@ -258,7 +397,6 @@
 
       const r = seededRand(seedKey);
 
-      // curva base + jitter “scarabocchio”
       const cx1 = x1 + (x2 - x1) * 0.25;
       const cy1 = y1 - 10 + (r()-0.5)*6;
       const cx2 = x1 + (x2 - x1) * 0.75;
@@ -276,7 +414,7 @@
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const p = bezier(t);
-        const amp = Math.sin(Math.PI * t) * 2.2; // jitter più a metà
+        const amp = Math.sin(Math.PI * t) * 2.2;
         pts.push({
           x: p.x + (r()-0.5)*amp*2.4,
           y: p.y + (r()-0.5)*amp*3.0
@@ -291,17 +429,22 @@
         d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
       }
       d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
-
       s.setAttribute('d', d);
     }
 
     (function init(){
-      mountTshirtText();
       setupFilters();
-      fitTshirtTextFill();
+
+      // aspetta il font custom, sennò le misure col canvas sballano
+      const run = () => layoutTshirtText();
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(run);
+      } else {
+        run();
+      }
 
       window.addEventListener('resize', () => {
-        fitTshirtTextFill();
+        layoutTshirtText();
         const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
         const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
         drawScribble(c + '|' + t);
