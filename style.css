@@ -1,17 +1,37 @@
+/* -----------------------
+   FONT: KeroinePRO
+   Metti i file in /fonts
+   - consigliato: .woff2 + .woff
+   - ok anche: .otf (più pesante)
+------------------------ */
+@font-face{
+  font-family: "KeroinePRO";
+  src:
+    url("fonts/KeroinePRO-DouxExtreme.woff2") format("woff2"),
+    url("fonts/KeroinePRO-DouxExtreme.woff") format("woff"),
+    url("fonts/KeroinePRO-DouxExtreme.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root{
   --bg: #ffffff;
   --text: #0b0b0b;
   --muted: #3a3a3a;
   --pill-border: rgba(0,0,0,.35);
 
-  --bio-d: 420px;
+  --shape-w: 420px;
+  --shape-h: 380px;
+  --shape-fs: 11px;
+  --shape-lh: 13px;
 }
 
 *{ box-sizing: border-box; }
 
 body{
   margin: 0;
-  font-family: "General Sans", Arial, sans-serif;
+  font-family: "KeroinePRO", "General Sans", Arial, sans-serif;
   background: var(--bg);
   color: var(--text);
 }
@@ -43,30 +63,30 @@ body{
   padding: 0 10px;
 }
 
-/* Bio circle */
-.bio-circle{
-  width: var(--bio-d);
-  max-width: min(var(--bio-d), 92vw);
-  aspect-ratio: 1 / 1;
+/* T-SHIRT shape */
+.shape-wrap{
+  width: var(--shape-w);
+  height: var(--shape-h);
+  max-width: min(var(--shape-w), 92vw);
   display: grid;
   place-items: center;
   margin-top: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
-.bio-circle__lines{
+.shape-lines{
   width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-/* fs/lh controllati da JS */
-.bio-line{
+.shape-line{
   font-weight: 600;
-  font-size: var(--bio-fs, 11.5px);
-  line-height: var(--bio-lh, 13.5px);
+  font-size: var(--shape-fs);
+  line-height: var(--shape-lh);
   letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
@@ -116,7 +136,7 @@ body{
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 32px; /* più aria tra category e tag */
+  gap: 32px;
   padding: 6px 0 0;
 }
 
@@ -168,7 +188,6 @@ body{
   padding-bottom: 40px;
 }
 
-/* Work list */
 .work-grid{
   width: 100%;
   display: grid;
@@ -211,15 +230,7 @@ body{
   text-align: center;
 }
 
-/* Responsive */
 @media (max-width: 520px){
-  :root{ --bio-d: 360px; }
-
-  .work-row{
-    grid-template-columns: 90px 1fr 0px;
-  }
-
-  .work-year{
-    padding-left: 12px;
-  }
+  .work-row{ grid-template-columns: 90px 1fr 0px; }
+  .work-year{ padding-left: 12px; }
 }
