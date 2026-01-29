@@ -18,17 +18,17 @@
 
       <div class="header-content">
 
-        <!-- SORGENTE TESTO (non visibile) -->
+        <!-- Testo sorgente (non visibile) -->
         <p id="bioSource" class="sr-only">
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- CERCHIO (righe generate via JS) -->
+        <!-- Cerchio -->
         <div class="bio-circle" aria-label="Bio">
           <div id="bioCircleLines" class="bio-circle__lines"></div>
         </div>
 
-        <!-- CONTATTI -->
+        <!-- Contatti -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -42,11 +42,11 @@
           </div>
         </div>
 
-        <!-- FILTRI + connettore -->
+        <!-- Filtri -->
         <section class="filters" id="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
-            <svg id="filterConnector" class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <path id="filterConnectorPath" d="" fill="none"></path>
             </svg>
 
@@ -69,13 +69,13 @@
         </section>
 
       </div>
+
       <div class="spacer"></div>
     </div>
   </header>
 
   <main class="page-content">
     <section class="work-grid" aria-label="Lavori">
-
       <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
         <div class="work-year">2025</div>
         <div class="work-title">
@@ -105,7 +105,6 @@
         </div>
         <div class="work-spacer"></div>
       </article>
-
     </section>
 
     <footer class="footer">
@@ -113,10 +112,11 @@
     </footer>
 
     <script>
-      // ------------------------------------------------------------
-      // 1) CERCHIO MIGLIORATO: sempre completo + più “rotondo”
-      // ------------------------------------------------------------
-      (function renderCircleBetter() {
+      // -----------------------------
+      // CERCHIO: auto-fit “vero”
+      // Obiettivo: ultimo testo vicino al fondo del cerchio (niente vuoto gigante)
+      // -----------------------------
+      (function renderCircle() {
         const sourceEl = document.getElementById('bioSource');
         const outEl = document.getElementById('bioCircleLines');
         if (!sourceEl || !outEl) return;
@@ -127,121 +127,120 @@
 
         const ctx = document.createElement('canvas').getContext('2d');
 
-        // Parametri target (simili reference)
-        let diameter = Math.min(460, Math.floor(window.innerWidth * 0.86));
-        let fontSize = 13.5;
-        let lineHeight = 15.5;
-
-        const padding = 10;
-        const minFont = 11;
-        const maxAttempts = 40;
-
         function maxWidthAtY(r, y) {
           const half = Math.sqrt(Math.max(0, (r * r) - (y * y)));
           return Math.max(0, 2 * half);
         }
 
-        function renderOnce(d, fs, lh) {
-          const r = (d / 2) - padding;
-
-          // più righe = bordo più “liscio”
+        function layoutOnce(diameter, fs) {
+          const lh = fs + 2.0;
+          const padding = 10;
+          const r = (diameter / 2) - padding;
           const linesCount = Math.max(22, Math.floor((2 * r) / lh));
           const yStart = -r + (lh / 2);
 
           ctx.font = `600 ${fs}px "General Sans", Arial, sans-serif`;
 
-          outEl.innerHTML = '';
+          const lines = [];
           let idx = 0;
+          let lastUsed = -1;
 
           for (let i = 0; i < linesCount; i++) {
             const y = yStart + i * lh;
             const maxW = maxWidthAtY(r, y);
 
-            // Poli: righe molto strette -> lascia vuoto per non creare “punta”
-            if (maxW < fs * 2.4) {
-              const div = document.createElement('div');
-              div.className = 'bio-line';
-              div.style.width = `${maxW}px`;
-              div.style.setProperty('--bio-fs', `${fs}px`);
-              div.style.setProperty('--bio-lh', `${lh}px`);
-              div.innerHTML = '&nbsp;';
-              outEl.appendChild(div);
+            // poli: lascia vuoto per arrotondare
+            if (maxW < fs * 2.6) {
+              lines.push({ w: maxW, t: "", fs, lh });
               continue;
             }
 
-            let line = '';
+            let line = "";
             while (idx < words.length) {
-              const next = line ? (line + ' ' + words[idx]) : words[idx];
+              const next = line ? (line + " " + words[idx]) : words[idx];
               const w = ctx.measureText(next).width;
-              if (w <= maxW) {
-                line = next;
-                idx++;
-              } else {
-                break;
-              }
+              if (w <= maxW) { line = next; idx++; }
+              else break;
             }
 
-            // parola lunghissima: forziamo comunque (meglio che troncare tutto)
-            if (!line && idx < words.length) {
-              line = words[idx++];
-            }
+            // se una parola non entra mai, forzala (meglio che troncare)
+            if (!line && idx < words.length) line = words[idx++];
 
-            const div = document.createElement('div');
-            div.className = 'bio-line';
-            div.style.width = `${maxW}px`;
-            div.style.setProperty('--bio-fs', `${fs}px`);
-            div.style.setProperty('--bio-lh', `${lh}px`);
-            div.textContent = line;
-            outEl.appendChild(div);
+            if (line) lastUsed = i;
+            lines.push({ w: maxW, t: line, fs, lh });
 
-            if (idx >= words.length) {
-              // riempi il resto con righe vuote per chiudere il cerchio “bene”
-              for (let j = i + 1; j < linesCount; j++) {
-                const y2 = yStart + j * lh;
-                const maxW2 = maxWidthAtY(r, y2);
-                const filler = document.createElement('div');
-                filler.className = 'bio-line';
-                filler.style.width = `${maxW2}px`;
-                filler.style.setProperty('--bio-fs', `${fs}px`);
-                filler.style.setProperty('--bio-lh', `${lh}px`);
-                filler.innerHTML = '&nbsp;';
-                outEl.appendChild(filler);
-              }
-              break;
-            }
+            if (idx >= words.length) break;
           }
 
-          return idx >= words.length;
+          const overflow = idx < words.length;
+          return { lines, overflow, lastUsed, linesCount, fs, lh };
         }
 
-        // Applica diametro al container
-        const container = outEl.closest('.bio-circle');
-        container.style.setProperty('--bio-d', `${diameter}px`);
+        function renderLines(result, diameter) {
+          outEl.innerHTML = "";
+          outEl.closest(".bio-circle").style.setProperty("--bio-d", `${diameter}px`);
 
-        // Auto-fit: se non entra tutto, riduci fs/lh finché entra
-        let ok = false;
-        for (let attempt = 0; attempt < maxAttempts; attempt++) {
-          ok = renderOnce(diameter, fontSize, lineHeight);
-          if (ok) break;
+          // IMPORTANT: rendiamo l’altezza del cerchio “vera” (diametro)
+          // così non ti crea spazi strani/scroll.
+          outEl.style.setProperty("--bio-fs", `${result.fs}px`);
+          outEl.style.setProperty("--bio-lh", `${result.lh}px`);
 
-          fontSize = Math.max(minFont, fontSize - 0.35);
-          lineHeight = Math.max(fontSize + 1.2, lineHeight - 0.35);
+          // disegniamo TUTTE le righe fino a linesCount,
+          // e quelle dopo lastUsed diventano vuote per chiudere il cerchio.
+          const linesCountTarget = Math.max(result.linesCount, result.lines.length);
+
+          for (let i = 0; i < linesCountTarget; i++) {
+            const item = result.lines[i] || result.lines[result.lines.length - 1];
+            const div = document.createElement("div");
+            div.className = "bio-line";
+            div.style.width = `${item.w}px`;
+            div.innerHTML = (i <= result.lastUsed && item.t) ? item.t : "&nbsp;";
+            outEl.appendChild(div);
+          }
         }
 
-        // fallback: se ancora no, aumenta un po’ il diametro e riprova
-        if (!ok) {
-          diameter = Math.min(560, diameter + 80);
-          container.style.setProperty('--bio-d', `${diameter}px`);
-          renderOnce(diameter, fontSize, lineHeight);
+        // diametro più simile reference (meno “vuoto” sotto)
+        let diameter = Math.min(420, Math.floor(window.innerWidth * 0.86));
+
+        // Ricerca fs: vogliamo:
+        // - non overflow
+        // - lastUsed vicino al fondo (linesCount-2)
+        let best = null;
+        for (let fs = 11; fs <= 16; fs += 0.25) {
+          const r = layoutOnce(diameter, fs);
+          if (r.overflow) continue;
+
+          const target = r.linesCount - 2;
+          const score = Math.abs((r.lastUsed >= 0 ? r.lastUsed : 0) - target);
+
+          if (!best || score < best.score) best = { ...r, score, fs };
         }
+
+        // se non troviamo nulla (rarissimo), riduci diametro e riprova
+        if (!best) {
+          diameter = Math.max(340, diameter - 60);
+          for (let fs = 11; fs <= 16; fs += 0.25) {
+            const r = layoutOnce(diameter, fs);
+            if (r.overflow) continue;
+            const target = r.linesCount - 2;
+            const score = Math.abs((r.lastUsed >= 0 ? r.lastUsed : 0) - target);
+            if (!best || score < best.score) best = { ...r, score, fs };
+          }
+        }
+
+        if (!best) {
+          // fallback estremo: render semplice
+          best = layoutOnce(diameter, 12);
+        }
+
+        renderLines(best, diameter);
       })();
 
-      // ------------------------------------------------------------
-      // 2) FILTRI + “freccia” più simile reference
-      // ------------------------------------------------------------
+      // -----------------------------
+      // FILTRI + freccia “più hand-drawn”
+      // -----------------------------
       (function filtersAndConnector() {
         const state = { category: 'Journalism', tag: 'Fashion' };
-
         const categoryGroup = document.getElementById('categoryGroup');
         const tagGroup = document.getElementById('tagGroup');
 
@@ -274,12 +273,10 @@
 
         onClick(categoryGroup, 'category');
         onClick(tagGroup, 'tag');
-
         setActive(categoryGroup, state.category);
         setActive(tagGroup, state.tag);
         updateList();
 
-        // connector
         const stackEl = document.getElementById('filterStack');
         const path = document.getElementById('filterConnectorPath');
 
@@ -302,26 +299,19 @@
           const x2 = ((p2.x - fr.left) / fr.width) * 100;
           const y2 = ((p2.y - fr.top) / fr.height) * 100;
 
-          // “scarabocchio” a S (molto simile reference)
+          // più simile reference: “S” stretta con pancia + piccola gobba
+          const midX = (x1 + x2) / 2;
           const midY = (y1 + y2) / 2;
-          const bump = 8;
-
-          const c1x = x1 + 10;
-          const c1y = midY - bump;
-
-          const c2x = x1 + 18;
-          const c2y = midY + bump;
-
-          const c3x = x2 - 18;
-          const c3y = midY - bump;
-
-          const c4x = x2 - 10;
-          const c4y = midY + bump;
+          const bump = 10;
 
           const d = `
             M ${x1} ${y1}
-            C ${c1x} ${c1y}, ${c2x} ${c2y}, ${(x1+x2)/2} ${midY}
-            C ${c3x} ${c3y}, ${c4x} ${c4y}, ${x2} ${y2}
+            C ${x1 + 6} ${midY - bump},
+              ${midX - 10} ${midY + bump},
+              ${midX} ${midY}
+            C ${midX + 10} ${midY - bump},
+              ${x2 - 6} ${midY + bump},
+              ${x2} ${y2}
           `;
           path.setAttribute('d', d);
         }
