@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Marco Marino</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -16,17 +15,34 @@
 
       <div class="header-content">
 
-        <!-- Testo sorgente: NON TOCCARE -->
-        <p id="bioSource" class="sr-only">
+        <!-- TESTO SORGENTE: NON TOCCARE -->
+        <p id="bioText" class="bio-text">
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- SHAPE (maglietta) -->
-        <div class="shape-wrap" aria-label="Bio a forma di maglietta">
-          <div id="shapeLines" class="shape-lines"></div>
+        <!-- WRAP: contiene SVG mask + testo -->
+        <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
+
+          <!-- SVG che definisce la silhouette (clip-path) -->
+          <svg class="tshirt-clip" viewBox="0 0 512 512" aria-hidden="true">
+            <defs>
+              <!-- silhouette t-shirt (semplice ma simile alla tua icona) -->
+              <clipPath id="clipTshirt" clipPathUnits="objectBoundingBox">
+                <!-- path in objectBoundingBox: normalizziamo via JS -->
+              </clipPath>
+            </defs>
+          </svg>
+
+          <!-- Questo layer clipperà il testo -->
+          <div class="tshirt-shape" id="tshirtShape">
+            <div class="tshirt-text">
+              <!-- duplico il testo da #bioText via JS per non avere doppioni nel DOM visibile -->
+              <div id="tshirtTextTarget"></div>
+            </div>
+          </div>
         </div>
 
-        <!-- Contatti -->
+        <!-- CONTATTI -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -40,7 +56,7 @@
           </div>
         </div>
 
-        <!-- Filtri -->
+        <!-- FILTRI -->
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -109,164 +125,86 @@
   </main>
 
   <script>
-    // =========================
-    // MAGLIETTA: SOLO RIGHE TESTO (niente “filler” => niente buco gigante)
-    // =========================
-    (function renderTShirtText() {
-      const sourceEl = document.getElementById('bioSource');
-      const outEl = document.getElementById('shapeLines');
-      const wrap = document.querySelector('.shape-wrap');
-      if (!sourceEl || !outEl || !wrap) return;
-
-      const text = (sourceEl.textContent || '').trim().replace(/\s+/g, ' ');
-      const words = text.split(' ').filter(Boolean);
-      if (!words.length) return;
-
-      const ctx = document.createElement('canvas').getContext('2d');
-
-      // larghezza shape (come reference: non enorme)
-      const W = Math.min(520, Math.floor(window.innerWidth * 0.86));
-      wrap.style.setProperty('--shape-w', `${W}px`);
-
-      // profilo maglietta: larghezza disponibile per riga (t = 0..1 dall'alto in basso)
-      function tshirtWidthAt(t) {
-        const max = W;
-
-        // parametri “maglietta icon”
-        const neck = max * 0.32;        // collo
-        const shoulders = max * 0.90;   // spalle
-        const sleeves = max * 0.98;     // picco maniche
-        const body = max * 0.66;        // corpo
-
-        // top: collo -> spalle
-        if (t < 0.14) {
-          const k = t / 0.14;
-          // smoothstep
-          const s = k*k*(3-2*k);
-          return neck + (shoulders - neck) * s;
-        }
-
-        // spalle/maniche: leggero gradino + curvetta
-        if (t < 0.30) {
-          const k = (t - 0.14) / 0.16; // 0..1
-          const hump = shoulders + (sleeves - shoulders) * Math.sin(Math.PI * k);
-          const settle = body * 0.96;
-          return hump * (1 - k*0.35) + settle * (k*0.35);
-        }
-
-        // corpo: quasi rettangolo, leggermente più largo verso il basso
-        if (t < 0.90) {
-          const k = (t - 0.30) / 0.60;
-          return (body * 0.98) + (body * 1.06 - body * 0.98) * k;
-        }
-
-        // base: un pelo più larga
-        const k = (t - 0.90) / 0.10;
-        const s = k*k*(3-2*k);
-        return (body * 1.06) + (body * 1.12 - body * 1.06) * s;
-      }
-
-      function fontStr(fs) {
-        return `600 ${fs}px "KeroinePRO", "General Sans", Arial, sans-serif`;
-      }
-      function measure(str, fs) {
-        ctx.font = fontStr(fs);
-        return ctx.measureText(str).width;
-      }
-
-      // layout: calcola righe usando un numero righe target (più righe = forma leggibile)
-      function layout(fs, lh, linesCount) {
-        outEl.innerHTML = "";
-        outEl.style.setProperty('--shape-fs', `${fs}px`);
-        outEl.style.setProperty('--shape-lh', `${lh}px`);
-
-        let idx = 0;
-
-        for (let i = 0; i < linesCount; i++) {
-          // t distribuito solo sulle righe stampate (così “disegna” la maglietta col testo, senza vuoti)
-          const t = (i + 0.5) / linesCount;
-          const maxW = tshirtWidthAt(t);
-
-          const div = document.createElement('div');
-          div.className = 'shape-line';
-          div.style.width = `${maxW}px`;
-
-          // righe strettissime in zona collo: lasciale vuote
-          if (maxW < fs * 3.4) {
-            div.innerHTML = "&nbsp;";
-            outEl.appendChild(div);
-            continue;
-          }
-
-          let lineWords = [];
-          while (idx < words.length) {
-            const candidate = lineWords.length ? [...lineWords, words[idx]] : [words[idx]];
-            const candidateStr = candidate.join(' ');
-            if (measure(candidateStr, fs) <= maxW) {
-              lineWords = candidate;
-              idx++;
-            } else break;
-          }
-
-          if (!lineWords.length && idx < words.length) {
-            lineWords = [words[idx++]];
-          }
-
-          const str = lineWords.join(' ');
-          const spaces = Math.max(0, lineWords.length - 1);
-
-          // giustifica per far “toccare” i bordi della maglietta e farla leggere come forma
-          // NON giustificare ultima riga (se finiamo il testo)
-          const isLastLine = (idx >= words.length);
-          if (!isLastLine && spaces >= 2) {
-            const rawW = measure(str, fs);
-            const diff = maxW - rawW;
-            const ws = Math.max(0, Math.min(5, diff / spaces));
-            div.style.wordSpacing = `${ws}px`;
-          } else {
-            div.style.wordSpacing = '0px';
-          }
-
-          div.textContent = str;
-          outEl.appendChild(div);
-
-          if (idx >= words.length) break;
-        }
-
-        // Altezza = righe effettivamente renderizzate (NO spazio bianco)
-        const usedLines = outEl.children.length;
-        wrap.style.setProperty('--shape-h', `${Math.round(usedLines * lh)}px`);
-
-        return idx >= words.length;
-      }
-
-      // Strategia:
-      // - tante righe (forma)
-      // - font piccolo e compatto
-      // - se non entra, riduci leggermente font
-      let fs = 11.0;
-      let lh = 13.0;
-
-      // numero righe “obiettivo” (più alto = più “sagoma”, ma senza vuoti)
-      // con questo testo lungo, 30–40 funziona bene
-      let linesCount = 38;
-
-      for (let tries = 0; tries < 18; tries++) {
-        const ok = layout(fs, lh, linesCount);
-        if (ok) return;
-
-        fs = Math.max(9.5, fs - 0.25);
-        lh = Math.max(fs + 1.6, lh - 0.15);
-        linesCount = Math.min(44, linesCount + 1); // se serve, aggiungi righe
-      }
-
-      // fallback ultimo: prova ancora più righe
-      layout(fs, lh, 46);
+    // -------------------------
+    // 1) Duplica testo dentro shape (così #bioText può restare sr-only)
+    // -------------------------
+    (function mountText() {
+      const src = document.getElementById('bioText');
+      const target = document.getElementById('tshirtTextTarget');
+      if (!src || !target) return;
+      target.textContent = src.textContent.trim();
+      // nascondi la sorgente (ma resta nel DOM per edit facile)
+      src.classList.add('sr-only');
     })();
 
-    // =========================
-    // FILTRI + connector
-    // =========================
+    // -------------------------
+    // 2) Crea clipPath in objectBoundingBox (compatibilità CSS clip-path:url)
+    //    Trucchetto: usiamo un path in viewBox 512 e lo normalizziamo in 0..1
+    // -------------------------
+    (function buildClipPath() {
+      const svg = document.querySelector('.tshirt-clip');
+      const clip = svg?.querySelector('#clipTshirt');
+      if (!svg || !clip) return;
+
+      // path t-shirt in coordinate 0..512 (simile icona)
+      const d512 = `
+        M 140 110
+        L 90 150
+        L 120 210
+        L 170 190
+        L 170 410
+        L 342 410
+        L 342 190
+        L 392 210
+        L 422 150
+        L 372 110
+        C 342 135 310 150 256 150
+        C 202 150 170 135 140 110
+        Z
+        M 200 110
+        C 212 140 228 150 256 150
+        C 284 150 300 140 312 110
+        C 296 92 280 82 256 82
+        C 232 82 216 92 200 110
+        Z
+      `;
+
+      // normalizza d da 0..512 a 0..1: moltiplicatore 1/512
+      // SVG path non supporta scale nel d, quindi usiamo <path transform="scale(...)"> dentro clipPath in userSpaceOnUse?
+      // In clipPathUnits="objectBoundingBox" possiamo invece mettere un <path> con transform="scale(1/512)".
+      clip.setAttribute('clipPathUnits', 'objectBoundingBox');
+      clip.innerHTML = `<path d="${d512}" transform="scale(${1/512})" />`;
+
+      // applica clip al div via CSS (url(#clipTshirt) deve puntare al documento)
+      // workaround: usa clip-path: path() come fallback se url non prende
+    })();
+
+    // -------------------------
+    // 3) Auto-fit font-size per far stare il testo dentro la maglietta
+    // -------------------------
+    (function fitText() {
+      const shape = document.getElementById('tshirtShape');
+      const textEl = document.querySelector('.tshirt-text');
+      if (!shape || !textEl) return;
+
+      const set = (px) => textEl.style.fontSize = px + 'px';
+
+      // base: piccolo
+      let size = 13;
+      set(size);
+
+      // riduci finché non entra (senza overflow)
+      for (let i = 0; i < 30; i++) {
+        if (textEl.scrollHeight <= shape.clientHeight && textEl.scrollWidth <= shape.clientWidth) break;
+        size -= 0.5;
+        set(size);
+        if (size <= 9) break;
+      }
+    })();
+
+    // -------------------------
+    // 4) Filtri + connector
+    // -------------------------
     (function filtersAndConnector() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
