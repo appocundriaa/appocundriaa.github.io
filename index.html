@@ -5,27 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Marco Marino</title>
 
-  <!-- General Sans -->
-  <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
 </head>
 
-<body class="default">
+<body>
 
   <header class="header">
     <div class="header-grid">
-      <div class="spacer"></div>
+      <div></div>
 
       <div class="header-content">
 
+        <!-- Testo sorgente (NON modificato) -->
         <p id="bioSource" class="sr-only">
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <div class="bio-circle" aria-label="Bio">
-          <div id="bioCircleLines" class="bio-circle__lines"></div>
+        <!-- SHAPE: T-SHIRT -->
+        <div class="shape-wrap" aria-label="Bio a forma di maglietta">
+          <div id="shapeLines" class="shape-lines"></div>
         </div>
 
+        <!-- CONTATTI -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -39,9 +40,9 @@
           </div>
         </div>
 
-        <section class="filters" id="filters" aria-label="Filtri">
+        <!-- FILTRI (restano uguali, freccia semplice per ora) -->
+        <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
-
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <path id="filterConnectorPath" d="" fill="none"></path>
             </svg>
@@ -60,13 +61,12 @@
               <button class="pill" data-filter="Design" type="button">Design</button>
               <button class="pill" data-filter="History" type="button">History</button>
             </div>
-
           </div>
         </section>
 
       </div>
 
-      <div class="spacer"></div>
+      <div></div>
     </div>
   </header>
 
@@ -106,258 +106,248 @@
     <footer class="footer">
       <p>© 2026 – Marco Marino</p>
     </footer>
+  </main>
 
-    <script>
-      // ------------------------------------------------------------
-      // CERCHIO: riempie ogni riga fino alla corda del cerchio (word-spacing dinamico)
-      // così l'occhio vede un bordo circolare, non un rombo.
-      // ------------------------------------------------------------
-      (function renderCircleJustified() {
-        const sourceEl = document.getElementById('bioSource');
-        const outEl = document.getElementById('bioCircleLines');
-        if (!sourceEl || !outEl) return;
+  <script>
+    // ------------------------------------------------------------
+    // SHAPE: T-SHIRT (profilo controllato) + word-spacing per “riempire”
+    // ------------------------------------------------------------
+    (function renderTshirt() {
+      const sourceEl = document.getElementById('bioSource');
+      const outEl = document.getElementById('shapeLines');
+      const wrap = document.querySelector('.shape-wrap');
+      if (!sourceEl || !outEl || !wrap) return;
 
-        const text = (sourceEl.textContent || '').trim().replace(/\s+/g, ' ');
-        const words = text.split(' ').filter(Boolean);
-        if (!words.length) return;
+      const text = (sourceEl.textContent || '').trim().replace(/\s+/g, ' ');
+      const words = text.split(' ').filter(Boolean);
+      if (!words.length) return;
 
-        const ctx = document.createElement('canvas').getContext('2d');
+      const ctx = document.createElement('canvas').getContext('2d');
 
-        function maxWidthAtY(r, y) {
-          const half = Math.sqrt(Math.max(0, (r * r) - (y * y)));
-          return Math.max(0, 2 * half);
+      // dimensioni shape
+      const W = Math.min(520, Math.floor(window.innerWidth * 0.86));
+      const H = Math.round(W * 0.90);          // maglietta un po’ più bassa che larga
+      wrap.style.setProperty('--shape-w', `${W}px`);
+      wrap.style.setProperty('--shape-h', `${H}px`);
+
+      // font tuning (di base piccolo)
+      let fs = 11.25;                          // prova: 10.5–12
+      let lh = 13.2;                           // line-height compatto
+
+      function fontStr(fs){ return `600 ${fs}px "KeroinePRO", "General Sans", Arial, sans-serif`; }
+      function measure(str, fs){
+        ctx.font = fontStr(fs);
+        return ctx.measureText(str).width;
+      }
+
+      // Profilo maglietta: restituisce larghezza massima (in px) disponibile a una certa y (0..1)
+      function tshirtWidthAt(t){
+        // t: 0 top, 1 bottom
+        // Sagoma semplificata:
+        // - collo (strozzatura)
+        // - spalle larghe
+        // - maniche (più larghe nella parte alta)
+        // - corpo più stretto
+        // - base quasi piena
+        const max = W;
+        const body = max * 0.62;       // corpo centrale
+        const shoulders = max * 0.92;  // spalle
+        const sleeves = max * 0.98;    // picco maniche
+
+        if (t < 0.10) {
+          // collo: da stretto a spalle
+          const neck = max * 0.28;
+          const k = t / 0.10;
+          // curva morbida
+          return neck + (shoulders - neck) * (k*k*(3-2*k));
         }
 
-        function measure(str, font) {
-          ctx.font = font;
-          return ctx.measureText(str).width;
+        if (t < 0.26) {
+          // maniche/spalle: sale verso sleeves e poi scende
+          const k = (t - 0.10) / 0.16; // 0..1
+          const peak = sleeves;
+          const start = shoulders;
+          const end = body * 0.92;
+          // gobba
+          const hump = start + (peak - start) * Math.sin(Math.PI * k);
+          return hump * (1 - k*0.25) + end * (k*0.25);
         }
 
-        function layout(diameter, fs, lh) {
-          const padding = 10;
-          const r = (diameter / 2) - padding;
+        if (t < 0.82) {
+          // corpo: quasi rettangolo, leggero taper
+          const k = (t - 0.26) / 0.56;
+          const topBody = body * 0.98;
+          const bottomBody = body * 1.03;
+          return topBody + (bottomBody - topBody) * k;
+        }
 
-          const linesCount = Math.max(30, Math.floor((2 * r) / lh)); // TANTE righe = più cerchio
-          const yStart = -r + (lh / 2);
+        // base: un filo più larga
+        const k = (t - 0.82) / 0.18;
+        return (body * 1.03) + (body * 1.10 - body * 1.03) * (k*k*(3-2*k));
+      }
 
-          const font = `600 ${fs}px "General Sans", Arial, sans-serif`;
+      function buildLines() {
+        outEl.innerHTML = "";
+        outEl.style.setProperty('--shape-fs', `${fs}px`);
+        outEl.style.setProperty('--shape-lh', `${lh}px`);
 
-          const lines = [];
-          let idx = 0;
+        const linesCount = Math.floor(H / lh);
+        let idx = 0;
 
-          for (let i = 0; i < linesCount; i++) {
-            const y = yStart + i * lh;
-            const maxW = maxWidthAtY(r, y);
+        for (let i = 0; i < linesCount; i++) {
+          const t = (i + 0.5) / linesCount; // 0..1
+          const maxW = tshirtWidthAt(t);
 
-            // poli: lascia righe vuote/strettissime per arrotondare
-            if (maxW < fs * 2.8) {
-              lines.push({ w: maxW, text: "", spaces: 0, fs, lh, justify: false });
-              continue;
-            }
+          const div = document.createElement('div');
+          div.className = 'shape-line';
+          div.style.width = `${maxW}px`;
 
-            let lineWords = [];
-            while (idx < words.length) {
-              const candidate = lineWords.length ? [...lineWords, words[idx]] : [words[idx]];
-              const candidateStr = candidate.join(' ');
-              const w = measure(candidateStr, font);
-
-              if (w <= maxW) {
-                lineWords = candidate;
-                idx++;
-              } else {
-                break;
-              }
-            }
-
-            if (!lineWords.length && idx < words.length) {
-              lineWords = [words[idx++]]; // fallback
-            }
-
-            const str = lineWords.join(' ');
-            const spaces = Math.max(0, lineWords.length - 1);
-
-            lines.push({
-              w: maxW,
-              text: str,
-              spaces,
-              fs,
-              lh,
-              // giustifica SOLO se ci sono abbastanza spazi e non è l'ultima riga di testo
-              justify: spaces >= 2
-            });
-
-            if (idx >= words.length) {
-              // riempi il resto con righe vuote per completare il cerchio
-              for (let j = i + 1; j < linesCount; j++) {
-                const y2 = yStart + j * lh;
-                const maxW2 = maxWidthAtY(r, y2);
-                lines.push({ w: maxW2, text: "", spaces: 0, fs, lh, justify: false });
-              }
-              break;
-            }
+          // righe troppo strette = vuote (collo)
+          if (maxW < fs * 3.2) {
+            div.innerHTML = "&nbsp;";
+            outEl.appendChild(div);
+            continue;
           }
 
-          const overflow = idx < words.length;
-          return { lines, overflow, fs, lh, diameter };
-        }
+          let lineWords = [];
+          while (idx < words.length) {
+            const candidate = lineWords.length ? [...lineWords, words[idx]] : [words[idx]];
+            const candidateStr = candidate.join(' ');
+            if (measure(candidateStr, fs) <= maxW) {
+              lineWords = candidate;
+              idx++;
+            } else break;
+          }
 
-        function render(result) {
-          const container = outEl.closest('.bio-circle');
-          container.style.setProperty('--bio-d', `${result.diameter}px`);
+          if (!lineWords.length && idx < words.length) {
+            lineWords = [words[idx++]];
+          }
 
-          outEl.style.setProperty('--bio-fs', `${result.fs}px`);
-          outEl.style.setProperty('--bio-lh', `${result.lh}px`);
+          const str = lineWords.join(' ');
+          const spaces = Math.max(0, lineWords.length - 1);
 
-          outEl.innerHTML = "";
+          // giustifica (word-spacing) per far arrivare la riga verso i bordi -> sagoma più netta
+          if (spaces >= 2 && idx < words.length) {
+            const rawW = measure(str, fs);
+            const diff = maxW - rawW;
+            const ws = Math.max(0, Math.min(5, diff / spaces));
+            div.style.wordSpacing = `${ws}px`;
+          } else {
+            div.style.wordSpacing = '0px';
+          }
 
-          const font = `600 ${result.fs}px "General Sans", Arial, sans-serif`;
+          div.textContent = str;
+          outEl.appendChild(div);
 
-          // trova l'ultima riga non-vuota per NON giustificarla (come nei libri)
-          let lastTextIndex = -1;
-          result.lines.forEach((ln, i) => { if (ln.text) lastTextIndex = i; });
-
-          result.lines.forEach((ln, i) => {
-            const div = document.createElement('div');
-            div.className = 'bio-line';
-            div.style.width = `${ln.w}px`;
-
-            if (!ln.text) {
-              div.innerHTML = "&nbsp;";
-              outEl.appendChild(div);
-              return;
+          // se abbiamo finito il testo, riempi con righe vuote (per completare sagoma)
+          if (idx >= words.length) {
+            for (let j = i + 1; j < linesCount; j++) {
+              const t2 = (j + 0.5) / linesCount;
+              const w2 = tshirtWidthAt(t2);
+              const filler = document.createElement('div');
+              filler.className = 'shape-line';
+              filler.style.width = `${w2}px`;
+              filler.innerHTML = "&nbsp;";
+              outEl.appendChild(filler);
             }
-
-            // calcola word-spacing per arrivare quasi a ln.w
-            // (solo se non è l'ultima riga di testo)
-            const shouldJustify = ln.justify && i !== lastTextIndex;
-
-            if (shouldJustify) {
-              const rawW = measure(ln.text, font);
-              const diff = ln.w - rawW;
-
-              // distribuisci il diff sugli spazi, clamp per non sfasciare
-              const ws = Math.max(0, Math.min(6, diff / ln.spaces));
-              div.style.wordSpacing = `${ws}px`;
-            } else {
-              div.style.wordSpacing = `0px`;
-            }
-
-            div.textContent = ln.text;
-            outEl.appendChild(div);
-          });
+            break;
+          }
         }
 
-        // Diametro più vicino reference + meno "vuoto"
-        let diameter = Math.min(420, Math.floor(window.innerWidth * 0.86));
+        return idx >= words.length;
+      }
 
-        // Ricerca font size: deve entrare tutto e riempire bene
-        // Proviamo piccoli -> cerchio più liscio
-        let best = null;
+      // Auto-fit semplice: se non entra, riduci leggermente fs/lh
+      for (let tries = 0; tries < 20; tries++) {
+        const ok = buildLines();
+        if (ok) break;
+        fs = Math.max(9.75, fs - 0.25);
+        lh = Math.max(fs + 1.6, lh - 0.20);
+      }
+    })();
 
-        for (let fs = 10.5; fs <= 13; fs += 0.25) {
-          const lh = fs + 2.0;
-          const r = layout(diameter, fs, lh);
-          if (r.overflow) continue;
+    // ------------------------------------------------------------
+    // Filtri + connector (come prima)
+    // ------------------------------------------------------------
+    (function filtersAndConnector() {
+      const state = { category: 'Journalism', tag: 'Fashion' };
+      const categoryGroup = document.getElementById('categoryGroup');
+      const tagGroup = document.getElementById('tagGroup');
+      const path = document.getElementById('filterConnectorPath');
+      const stackEl = document.getElementById('filterStack');
 
-          // score: preferisci più righe "con testo" (meno vuoti)
-          const textLines = r.lines.filter(x => x.text).length;
-          const score = -textLines;
+      const normTags = (raw) => (raw || '').split(',').map(s => s.trim()).filter(Boolean);
 
-          if (!best || score < best.score) best = { ...r, score };
-        }
+      const setActive = (groupEl, value) => {
+        groupEl.querySelectorAll('.pill').forEach(btn => {
+          btn.classList.toggle('is-active', btn.dataset.filter === value);
+        });
+      };
 
-        if (!best) {
-          // fallback
-          best = layout(diameter, 11.5, 13.5);
-        }
+      const updateList = () => {
+        document.querySelectorAll('.work-row').forEach((row) => {
+          const c = row.getAttribute('data-category') || '';
+          const tags = normTags(row.getAttribute('data-tags'));
+          row.style.display = (c === state.category && tags.includes(state.tag)) ? '' : 'none';
+        });
+      };
 
-        render(best);
-      })();
+      const onClick = (groupEl, key) => {
+        groupEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('button[data-filter]');
+          if (!btn) return;
+          state[key] = btn.dataset.filter;
+          setActive(groupEl, state[key]);
+          updateList();
+          drawConnector();
+        });
+      };
 
-      // ------------------------------------------------------------
-      // FILTRI + freccia
-      // ------------------------------------------------------------
-      (function filtersAndConnector() {
-        const state = { category: 'Journalism', tag: 'Fashion' };
-        const categoryGroup = document.getElementById('categoryGroup');
-        const tagGroup = document.getElementById('tagGroup');
+      function centerOf(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      }
 
-        const normTags = (raw) => (raw || '').split(',').map(s => s.trim()).filter(Boolean);
+      function drawConnector() {
+        const a = categoryGroup.querySelector('.pill.is-active');
+        const b = tagGroup.querySelector('.pill.is-active');
+        if (!a || !b) { path.setAttribute('d', ''); return; }
 
-        const setActive = (groupEl, value) => {
-          groupEl.querySelectorAll('.pill').forEach(btn => {
-            btn.classList.toggle('is-active', btn.dataset.filter === value);
-          });
-        };
+        const fr = stackEl.getBoundingClientRect();
+        const p1 = centerOf(a);
+        const p2 = centerOf(b);
 
-        const updateList = () => {
-          document.querySelectorAll('.work-row').forEach((row) => {
-            const c = row.getAttribute('data-category') || '';
-            const tags = normTags(row.getAttribute('data-tags'));
-            row.style.display = (c === state.category && tags.includes(state.tag)) ? '' : 'none';
-          });
-        };
+        const x1 = ((p1.x - fr.left) / fr.width) * 100;
+        const y1 = ((p1.y - fr.top) / fr.height) * 100;
+        const x2 = ((p2.x - fr.left) / fr.width) * 100;
+        const y2 = ((p2.y - fr.top) / fr.height) * 100;
 
-        const onClick = (groupEl, key) => {
-          groupEl.addEventListener('click', (e) => {
-            const btn = e.target.closest('button[data-filter]');
-            if (!btn) return;
-            state[key] = btn.dataset.filter;
-            setActive(groupEl, state[key]);
-            updateList();
-            drawConnector();
-          });
-        };
+        const midY = (y1 + y2) / 2;
+        const midX = (x1 + x2) / 2;
 
-        onClick(categoryGroup, 'category');
-        onClick(tagGroup, 'tag');
-        setActive(categoryGroup, state.category);
-        setActive(tagGroup, state.tag);
-        updateList();
+        const d = `
+          M ${x1} ${y1}
+          C ${x1 + 8} ${midY - 12},
+            ${midX - 14} ${midY + 12},
+            ${midX} ${midY}
+          C ${midX + 14} ${midY - 12},
+            ${x2 - 8} ${midY + 12},
+            ${x2} ${y2}
+        `;
+        path.setAttribute('d', d);
+      }
 
-        const stackEl = document.getElementById('filterStack');
-        const path = document.getElementById('filterConnectorPath');
+      onClick(categoryGroup, 'category');
+      onClick(tagGroup, 'tag');
 
-        function centerOf(el) {
-          const r = el.getBoundingClientRect();
-          return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-        }
+      setActive(categoryGroup, state.category);
+      setActive(tagGroup, state.tag);
+      updateList();
+      drawConnector();
 
-        function drawConnector() {
-          const a = categoryGroup.querySelector('.pill.is-active');
-          const b = tagGroup.querySelector('.pill.is-active');
-          if (!a || !b) { path.setAttribute('d', ''); return; }
+      window.addEventListener('resize', drawConnector);
+    })();
+  </script>
 
-          const fr = stackEl.getBoundingClientRect();
-          const p1 = centerOf(a);
-          const p2 = centerOf(b);
-
-          const x1 = ((p1.x - fr.left) / fr.width) * 100;
-          const y1 = ((p1.y - fr.top) / fr.height) * 100;
-          const x2 = ((p2.x - fr.left) / fr.width) * 100;
-          const y2 = ((p2.y - fr.top) / fr.height) * 100;
-
-          // “hand-drawn”: S più stretta con 2 gobbe
-          const midX = (x1 + x2) / 2;
-          const midY = (y1 + y2) / 2;
-
-          const d = `
-            M ${x1} ${y1}
-            C ${x1 + 8} ${midY - 12},
-              ${midX - 14} ${midY + 12},
-              ${midX} ${midY}
-            C ${midX + 14} ${midY - 12},
-              ${x2 - 8} ${midY + 12},
-              ${x2} ${y2}
-          `;
-          path.setAttribute('d', d);
-        }
-
-        window.addEventListener('resize', drawConnector);
-        drawConnector();
-      })();
-    </script>
-
-  </main>
 </body>
 </html>
