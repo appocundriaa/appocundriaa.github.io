@@ -21,7 +21,7 @@
 body{
   margin: 0;
   font-family: "KeroinePRO", "General Sans", Arial, sans-serif;
-  font-weight: 600; /* coerente col font che hai */
+  font-weight: 600;
   background: var(--bg);
   color: var(--text);
 }
@@ -78,18 +78,25 @@ body{
   padding: 0; /* ZERO, per non abbassare tutto */
 }
 
-/* testo dentro forma */
+/* contenitore testo dentro forma (NON deve tagliare) */
 .tshirt-text{
-  width: 78%;
-  margin-top: 6%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
   text-align: center;
   font-weight: 600;
-  line-height: 1.12;
   letter-spacing: -0.01em;
   white-space: normal;
-  overflow: hidden;
-  hyphens: auto;
-  word-break: break-word; /* evita buchi strani su parole lunghe */
+  overflow: visible;        /* ✅ IMPORTANTISSIMO: niente tagli */
+  word-break: break-word;   /* ✅ permette di troncare parole a metà */
+  hyphens: none;            /* meglio off, sennò introduce trattini */
+}
+
+/* righe generate via JS */
+.tline{
+  margin: 0 auto;
+  padding: 0;
+  line-height: 1.12;
 }
 
 /* Contatti */
@@ -237,5 +244,4 @@ body{
 @media (max-width: 520px){
   .work-row{ grid-template-columns: 90px 1fr 0px; }
   .work-year{ padding-left: 12px; }
-  .tshirt-text{ width: 84%; margin-top: 7%; }
 }
