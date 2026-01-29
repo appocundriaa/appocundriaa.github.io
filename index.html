@@ -143,11 +143,10 @@
   </main>
 
   <script>
-    // ======== TESTO T-SHIRT: righe controllate (niente testo "mancante") ========
+    // ======== TESTO T-SHIRT: righe controllate (Nessun testo "mancante") ========
 
     function getBioText(){
       const src = document.getElementById('bioSource');
-      // NON cambia contenuto, solo normalizza spazi per stabilità layout
       return (src?.textContent || '').trim().replace(/\s+/g, ' ');
     }
 
@@ -158,8 +157,6 @@
       return (str) => ctx.measureText(str).width;
     }
 
-    // La tua sagoma è un POLIGONO (M + L + Z). La usiamo anche per calcolare la larghezza
-    // disponibile ad ogni altezza (così il testo segue ESATTAMENTE la forma).
     const CLIP_POLY = [
       {x:140, y:115},
       {x:372, y:115},
@@ -176,21 +173,20 @@
     const CLIP_MIN_Y = 115;
     const CLIP_MAX_Y = 430;
 
-    // Intersezioni di un segmento con una scanline orizzontale y:
     function segIntersectX(p1, p2, y){
-      // includiamo metà-open per evitare doppi conteggi sui vertici
       const y1 = p1.y, y2 = p2.y;
       const minY = Math.min(y1, y2);
       const maxY = Math.max(y1, y2);
+
       if (y < minY || y >= maxY) return null; // [min, max)
-      if (y1 === y2) return null; // orizzontale: ignora
+      if (y1 === y2) return null;
+
       const t = (y - y1) / (y2 - y1);
       return p1.x + t * (p2.x - p1.x);
     }
 
-    // Larghezza "utile" della maglietta ad una certa y (in coordinate SVG)
-    // Nota: vicino alle maniche il poligono è concavo → possono uscire 4 intersezioni.
-    // In quel caso prendiamo SEMPRE l'intervallo "centrale" (corpo), non quello esterno (maniche).
+    // Se il poligono dà 4 intersezioni (zona maniche concava),
+    // prendiamo SEMPRE il "corpo": coppia centrale [1,2].
     function widthAtSvgY(y){
       const xs = [];
       for (let i = 0; i < CLIP_POLY.length; i++){
@@ -201,11 +197,7 @@
       }
       if (xs.length < 2) return 0;
       xs.sort((m,n) => m - n);
-
-      // caso concavo: 4 intersezioni -> scegli [1,2]
       if (xs.length >= 4) return xs[2] - xs[1];
-
-      // caso normale: 2 intersezioni -> scegli [0,1]
       return xs[1] - xs[0];
     }
 
@@ -221,24 +213,26 @@
       const W = fo.clientWidth;
       const H = fo.clientHeight;
 
-      // lavoriamo SOLO nella fascia verticale della maglietta (altrimenti collassa a 1 lettera/riga)
-      const clipHPx = (CLIP_MAX_Y - CLIP_MIN_Y) / 512 * H;
+      // --- QUESTA È LA FIX CHIAVE ---
+      // Il clip vive tra y=115..430 in SVG.
+      // Quindi dobbiamo "abbassare" il blocco testo fino all'inizio della maglietta.
+      const clipTopPx = (CLIP_MIN_Y / 512) * H;
+      const clipHPx   = ((CLIP_MAX_Y - CLIP_MIN_Y) / 512) * H;
 
-      // padding minimo dentro il clip (vuoi che parta quasi subito)
-      const topPad = Math.round(clipHPx * 0.02);
-      const botPad = Math.round(clipHPx * 0.02);
+      // padding interno minimo dentro la maglietta
+      const innerTopPad = Math.round(clipHPx * 0.02);
+      const innerBotPad = Math.round(clipHPx * 0.02);
 
-      // tipografia (coerente col tuo CSS)
       const weight = 600;
       const family = 'KeroinePRO, "General Sans", Arial, sans-serif';
       const lineHeightRatio = 1.10;
 
-      // margine sicurezza per evitare che lettere tocchino il bordo e vengano clippate
+      // sicurezza per evitare che lettere tocchino il bordo e vengano clippate
       const SAFE = 0.94;
 
       function tryFit(fontSize){
         const lineH = fontSize * lineHeightRatio;
-        const usableH = Math.max(1, clipHPx - topPad - botPad);
+        const usableH = Math.max(1, clipHPx - innerTopPad - innerBotPad);
         const maxLines = Math.max(1, Math.floor(usableH / lineH));
 
         const font = `${weight} ${fontSize}px ${family}`;
@@ -248,8 +242,8 @@
         const lines = [];
 
         for (let i = 0; i < maxLines && idx < text.length; i++){
-          // y della riga in "clip space" → converti in SVG y (MIN..MAX)
-          const yPxInClip = topPad + i * lineH + lineH * 0.55;
+          // centro riga in "clip space" (0..clipHPx) → poi in SVG y
+          const yPxInClip = innerTopPad + i * lineH + lineH * 0.55;
           const t = yPxInClip / clipHPx; // 0..1
           const ySvg = CLIP_MIN_Y + t * (CLIP_MAX_Y - CLIP_MIN_Y);
 
@@ -260,7 +254,6 @@
           let lastGood = '';
           let lastGoodIdx = idx;
 
-          // riempi char-by-char finché ci sta (spezza anche parole)
           while (idx < text.length){
             const next = chunk + text[idx];
             if (measure(next) <= maxWpx){
@@ -273,7 +266,6 @@
             }
           }
 
-          // se non entra nemmeno 1 char (caso estremo), forza 1 char
           if (!lastGood){
             lastGood = text[idx] || '';
             lastGoodIdx = idx + 1;
@@ -291,7 +283,6 @@
         return { finished: idx >= text.length, lines };
       }
 
-      // cerca il font più grande che permette di vedere TUTTO il testo
       const MAX = 44;
       const MIN = 8;
       let best = null;
@@ -305,7 +296,6 @@
       }
 
       if (!best){
-        // fallback: almeno non crasha
         const res = tryFit(MIN);
         best = { fontSize: MIN, ...res };
       }
@@ -314,8 +304,10 @@
       host.style.fontSize = best.fontSize + 'px';
       host.style.fontWeight = String(weight);
       host.style.lineHeight = String(lineHeightRatio);
-      host.style.paddingTop = topPad + 'px';
-      host.style.paddingBottom = botPad + 'px';
+
+      // QUESTO fa sì che la prima riga parta dentro la maglietta (non sopra → non viene tagliata)
+      host.style.paddingTop = (clipTopPx + innerTopPad) + 'px';
+      host.style.paddingBottom = innerBotPad + 'px';
 
       for (const line of best.lines){
         const div = document.createElement('div');
@@ -442,7 +434,6 @@
     (function init(){
       setupFilters();
 
-      // aspetta il font custom, sennò le misure col canvas sballano
       const run = () => layoutTshirtText();
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(run);
