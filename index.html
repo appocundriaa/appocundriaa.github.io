@@ -24,10 +24,6 @@
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
           <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
-              <!--
-                SHAPE: usa SOLO come clip (invisibile).
-                NIENTE COLLO. NIENTE BORDO VISIBILE.
-              -->
               <clipPath id="tshirtInnerClip" clipPathUnits="userSpaceOnUse">
                 <path id="tshirtInnerPath" d="
                   M 140 115
@@ -45,16 +41,16 @@
               </clipPath>
             </defs>
 
-            <!-- TESTO clippato: la forma è fatta SOLO dal testo -->
-            <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtInnerClip)">
+            <!-- ✅ FOREIGNOBJECT NELLA FASCIA VERTICALE GIUSTA -->
+            <foreignObject
+              x="0" y="115"
+              width="512" height="315"
+              clip-path="url(#tshirtInnerClip)"
+            >
               <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
                 <div id="tshirtText" class="tshirt-text"></div>
               </div>
             </foreignObject>
-
-            <!-- IMPORTANTISSIMO:
-                 NESSUN PATH DI BORDO QUI.
-                 La sagoma NON deve vedersi. -->
           </svg>
         </div>
 
@@ -76,7 +72,6 @@
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
-            <!-- UN SOLO scarabocchio -->
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <path id="scribble" d="" fill="none"></path>
             </svg>
@@ -143,7 +138,7 @@
   </main>
 
   <script>
-    // ======== TESTO T-SHIRT: righe controllate (Nessun testo "mancante") ========
+    // ======== TESTO T-SHIRT ========
 
     function getBioText(){
       const src = document.getElementById('bioSource');
@@ -172,21 +167,19 @@
 
     const CLIP_MIN_Y = 115;
     const CLIP_MAX_Y = 430;
+    const CLIP_H = CLIP_MAX_Y - CLIP_MIN_Y; // 315
 
     function segIntersectX(p1, p2, y){
       const y1 = p1.y, y2 = p2.y;
       const minY = Math.min(y1, y2);
       const maxY = Math.max(y1, y2);
-
       if (y < minY || y >= maxY) return null; // [min, max)
       if (y1 === y2) return null;
-
       const t = (y - y1) / (y2 - y1);
       return p1.x + t * (p2.x - p1.x);
     }
 
-    // Se il poligono dà 4 intersezioni (zona maniche concava),
-    // prendiamo SEMPRE il "corpo": coppia centrale [1,2].
+    // Se ci sono 4 intersezioni (maniche), scegliamo il "busto": xs[1]..xs[2]
     function widthAtSvgY(y){
       const xs = [];
       for (let i = 0; i < CLIP_POLY.length; i++){
@@ -211,28 +204,22 @@
       if (!text) return;
 
       const W = fo.clientWidth;
-      const H = fo.clientHeight;
-
-      // --- QUESTA È LA FIX CHIAVE ---
-      // Il clip vive tra y=115..430 in SVG.
-      // Quindi dobbiamo "abbassare" il blocco testo fino all'inizio della maglietta.
-      const clipTopPx = (CLIP_MIN_Y / 512) * H;
-      const clipHPx   = ((CLIP_MAX_Y - CLIP_MIN_Y) / 512) * H;
-
-      // padding interno minimo dentro la maglietta
-      const innerTopPad = Math.round(clipHPx * 0.02);
-      const innerBotPad = Math.round(clipHPx * 0.02);
+      const H = fo.clientHeight; // ✅ ora è 315 scalato, non 512
 
       const weight = 600;
       const family = 'KeroinePRO, "General Sans", Arial, sans-serif';
       const lineHeightRatio = 1.10;
 
-      // sicurezza per evitare che lettere tocchino il bordo e vengano clippate
-      const SAFE = 0.94;
+      // sicurezza per evitare glyph clippati
+      const SAFE = 0.93;
+
+      // padding interno minimo
+      const topPad = Math.round(H * 0.02);
+      const botPad = Math.round(H * 0.02);
 
       function tryFit(fontSize){
         const lineH = fontSize * lineHeightRatio;
-        const usableH = Math.max(1, clipHPx - innerTopPad - innerBotPad);
+        const usableH = Math.max(1, H - topPad - botPad);
         const maxLines = Math.max(1, Math.floor(usableH / lineH));
 
         const font = `${weight} ${fontSize}px ${family}`;
@@ -242,13 +229,18 @@
         const lines = [];
 
         for (let i = 0; i < maxLines && idx < text.length; i++){
-          // centro riga in "clip space" (0..clipHPx) → poi in SVG y
-          const yPxInClip = innerTopPad + i * lineH + lineH * 0.55;
-          const t = yPxInClip / clipHPx; // 0..1
-          const ySvg = CLIP_MIN_Y + t * (CLIP_MAX_Y - CLIP_MIN_Y);
+          const yPx = topPad + i * lineH + lineH * 0.55;
+
+          // mappa yPx (0..H) dentro la fascia clip (115..430)
+          const t = yPx / Math.max(1, H);
+          let ySvg = CLIP_MIN_Y + t * CLIP_H;
+
+          // epsilon per non cadere esattamente sui bordi
+          const eps = 0.001;
+          ySvg = Math.max(CLIP_MIN_Y + eps, Math.min(CLIP_MAX_Y - eps, ySvg));
 
           const wSvg = widthAtSvgY(ySvg) * SAFE;
-          const maxWpx = Math.max(10, (wSvg / 512) * W);
+          const maxWpx = Math.max(12, (wSvg / 512) * W);
 
           let chunk = '';
           let lastGood = '';
@@ -272,17 +264,14 @@
             idx = lastGoodIdx;
           }
 
-          lines.push({
-            text: lastGood.replace(/^\s+/, ''),
-            w: Math.round(maxWpx)
-          });
-
+          lines.push({ text: lastGood.replace(/^\s+/, ''), w: Math.round(maxWpx) });
           idx = lastGoodIdx;
         }
 
         return { finished: idx >= text.length, lines };
       }
 
+      // font più grande che fa entrare tutto
       const MAX = 44;
       const MIN = 8;
       let best = null;
@@ -294,20 +283,15 @@
           break;
         }
       }
-
       if (!best){
-        const res = tryFit(MIN);
-        best = { fontSize: MIN, ...res };
+        best = { fontSize: MIN, ...tryFit(MIN) };
       }
 
-      // render
       host.style.fontSize = best.fontSize + 'px';
       host.style.fontWeight = String(weight);
       host.style.lineHeight = String(lineHeightRatio);
-
-      // QUESTO fa sì che la prima riga parta dentro la maglietta (non sopra → non viene tagliata)
-      host.style.paddingTop = (clipTopPx + innerTopPad) + 'px';
-      host.style.paddingBottom = innerBotPad + 'px';
+      host.style.paddingTop = topPad + 'px';
+      host.style.paddingBottom = botPad + 'px';
 
       for (const line of best.lines){
         const div = document.createElement('div');
@@ -318,7 +302,7 @@
       }
     }
 
-    // ======== FILTRI (come avevi) ========
+    // ======== FILTRI ========
 
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
@@ -360,7 +344,7 @@
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // ======== scarabocchio singolo (come avevi) ========
+    // ======== scarabocchio ========
 
     function seededRand(seedStr) {
       let h = 2166136261;
