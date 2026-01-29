@@ -16,17 +16,17 @@
 
       <div class="header-content">
 
-        <!-- Testo sorgente (NON modificato) -->
+        <!-- Testo sorgente: NON TOCCARE -->
         <p id="bioSource" class="sr-only">
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- SHAPE: T-SHIRT -->
+        <!-- SHAPE (maglietta) -->
         <div class="shape-wrap" aria-label="Bio a forma di maglietta">
           <div id="shapeLines" class="shape-lines"></div>
         </div>
 
-        <!-- CONTATTI -->
+        <!-- Contatti -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -40,7 +40,7 @@
           </div>
         </div>
 
-        <!-- FILTRI (restano uguali, freccia semplice per ora) -->
+        <!-- Filtri -->
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
@@ -109,10 +109,10 @@
   </main>
 
   <script>
-    // ------------------------------------------------------------
-    // SHAPE: T-SHIRT (profilo controllato) + word-spacing per “riempire”
-    // ------------------------------------------------------------
-    (function renderTshirt() {
+    // =========================
+    // MAGLIETTA: SOLO RIGHE TESTO (niente “filler” => niente buco gigante)
+    // =========================
+    (function renderTShirtText() {
       const sourceEl = document.getElementById('bioSource');
       const outEl = document.getElementById('shapeLines');
       const wrap = document.querySelector('.shape-wrap');
@@ -124,86 +124,75 @@
 
       const ctx = document.createElement('canvas').getContext('2d');
 
-      // dimensioni shape
+      // larghezza shape (come reference: non enorme)
       const W = Math.min(520, Math.floor(window.innerWidth * 0.86));
-      const H = Math.round(W * 0.90);          // maglietta un po’ più bassa che larga
       wrap.style.setProperty('--shape-w', `${W}px`);
-      wrap.style.setProperty('--shape-h', `${H}px`);
 
-      // font tuning (di base piccolo)
-      let fs = 11.25;                          // prova: 10.5–12
-      let lh = 13.2;                           // line-height compatto
+      // profilo maglietta: larghezza disponibile per riga (t = 0..1 dall'alto in basso)
+      function tshirtWidthAt(t) {
+        const max = W;
 
-      function fontStr(fs){ return `600 ${fs}px "KeroinePRO", "General Sans", Arial, sans-serif`; }
-      function measure(str, fs){
+        // parametri “maglietta icon”
+        const neck = max * 0.32;        // collo
+        const shoulders = max * 0.90;   // spalle
+        const sleeves = max * 0.98;     // picco maniche
+        const body = max * 0.66;        // corpo
+
+        // top: collo -> spalle
+        if (t < 0.14) {
+          const k = t / 0.14;
+          // smoothstep
+          const s = k*k*(3-2*k);
+          return neck + (shoulders - neck) * s;
+        }
+
+        // spalle/maniche: leggero gradino + curvetta
+        if (t < 0.30) {
+          const k = (t - 0.14) / 0.16; // 0..1
+          const hump = shoulders + (sleeves - shoulders) * Math.sin(Math.PI * k);
+          const settle = body * 0.96;
+          return hump * (1 - k*0.35) + settle * (k*0.35);
+        }
+
+        // corpo: quasi rettangolo, leggermente più largo verso il basso
+        if (t < 0.90) {
+          const k = (t - 0.30) / 0.60;
+          return (body * 0.98) + (body * 1.06 - body * 0.98) * k;
+        }
+
+        // base: un pelo più larga
+        const k = (t - 0.90) / 0.10;
+        const s = k*k*(3-2*k);
+        return (body * 1.06) + (body * 1.12 - body * 1.06) * s;
+      }
+
+      function fontStr(fs) {
+        return `600 ${fs}px "KeroinePRO", "General Sans", Arial, sans-serif`;
+      }
+      function measure(str, fs) {
         ctx.font = fontStr(fs);
         return ctx.measureText(str).width;
       }
 
-      // Profilo maglietta: restituisce larghezza massima (in px) disponibile a una certa y (0..1)
-      function tshirtWidthAt(t){
-        // t: 0 top, 1 bottom
-        // Sagoma semplificata:
-        // - collo (strozzatura)
-        // - spalle larghe
-        // - maniche (più larghe nella parte alta)
-        // - corpo più stretto
-        // - base quasi piena
-        const max = W;
-        const body = max * 0.62;       // corpo centrale
-        const shoulders = max * 0.92;  // spalle
-        const sleeves = max * 0.98;    // picco maniche
-
-        if (t < 0.10) {
-          // collo: da stretto a spalle
-          const neck = max * 0.28;
-          const k = t / 0.10;
-          // curva morbida
-          return neck + (shoulders - neck) * (k*k*(3-2*k));
-        }
-
-        if (t < 0.26) {
-          // maniche/spalle: sale verso sleeves e poi scende
-          const k = (t - 0.10) / 0.16; // 0..1
-          const peak = sleeves;
-          const start = shoulders;
-          const end = body * 0.92;
-          // gobba
-          const hump = start + (peak - start) * Math.sin(Math.PI * k);
-          return hump * (1 - k*0.25) + end * (k*0.25);
-        }
-
-        if (t < 0.82) {
-          // corpo: quasi rettangolo, leggero taper
-          const k = (t - 0.26) / 0.56;
-          const topBody = body * 0.98;
-          const bottomBody = body * 1.03;
-          return topBody + (bottomBody - topBody) * k;
-        }
-
-        // base: un filo più larga
-        const k = (t - 0.82) / 0.18;
-        return (body * 1.03) + (body * 1.10 - body * 1.03) * (k*k*(3-2*k));
-      }
-
-      function buildLines() {
+      // layout: calcola righe usando un numero righe target (più righe = forma leggibile)
+      function layout(fs, lh, linesCount) {
         outEl.innerHTML = "";
         outEl.style.setProperty('--shape-fs', `${fs}px`);
         outEl.style.setProperty('--shape-lh', `${lh}px`);
 
-        const linesCount = Math.floor(H / lh);
         let idx = 0;
 
         for (let i = 0; i < linesCount; i++) {
-          const t = (i + 0.5) / linesCount; // 0..1
+          // t distribuito solo sulle righe stampate (così “disegna” la maglietta col testo, senza vuoti)
+          const t = (i + 0.5) / linesCount;
           const maxW = tshirtWidthAt(t);
 
           const div = document.createElement('div');
           div.className = 'shape-line';
           div.style.width = `${maxW}px`;
 
-          // righe troppo strette = vuote (collo)
-          if (maxW < fs * 3.2) {
+          // righe strettissime in zona collo: lasciale vuote
+          if (maxW < fs * 3.4) {
             div.innerHTML = "&nbsp;";
             outEl.appendChild(div);
             continue;
@@ -226,8 +215,10 @@
           const str = lineWords.join(' ');
           const spaces = Math.max(0, lineWords.length - 1);
 
-          // giustifica (word-spacing) per far arrivare la riga verso i bordi -> sagoma più netta
-          if (spaces >= 2 && idx < words.length) {
+          // giustifica per far “toccare” i bordi della maglietta e farla leggere come forma
+          // NON giustificare ultima riga (se finiamo il testo)
+          const isLastLine = (idx >= words.length);
+          if (!isLastLine && spaces >= 2) {
             const rawW = measure(str, fs);
             const diff = maxW - rawW;
             const ws = Math.max(0, Math.min(5, diff / spaces));
@@ -239,36 +230,43 @@
           div.textContent = str;
           outEl.appendChild(div);
 
-          // se abbiamo finito il testo, riempi con righe vuote (per completare sagoma)
-          if (idx >= words.length) {
-            for (let j = i + 1; j < linesCount; j++) {
-              const t2 = (j + 0.5) / linesCount;
-              const w2 = tshirtWidthAt(t2);
-              const filler = document.createElement('div');
-              filler.className = 'shape-line';
-              filler.style.width = `${w2}px`;
-              filler.innerHTML = "&nbsp;";
-              outEl.appendChild(filler);
-            }
-            break;
-          }
+          if (idx >= words.length) break;
         }
+
+        // Altezza = righe effettivamente renderizzate (NO spazio bianco)
+        const usedLines = outEl.children.length;
+        wrap.style.setProperty('--shape-h', `${Math.round(usedLines * lh)}px`);
 
         return idx >= words.length;
       }
 
-      // Auto-fit semplice: se non entra, riduci leggermente fs/lh
-      for (let tries = 0; tries < 20; tries++) {
-        const ok = buildLines();
-        if (ok) break;
-        fs = Math.max(9.75, fs - 0.25);
-        lh = Math.max(fs + 1.6, lh - 0.20);
+      // Strategia:
+      // - tante righe (forma)
+      // - font piccolo e compatto
+      // - se non entra, riduci leggermente font
+      let fs = 11.0;
+      let lh = 13.0;
+
+      // numero righe “obiettivo” (più alto = più “sagoma”, ma senza vuoti)
+      // con questo testo lungo, 30–40 funziona bene
+      let linesCount = 38;
+
+      for (let tries = 0; tries < 18; tries++) {
+        const ok = layout(fs, lh, linesCount);
+        if (ok) return;
+
+        fs = Math.max(9.5, fs - 0.25);
+        lh = Math.max(fs + 1.6, lh - 0.15);
+        linesCount = Math.min(44, linesCount + 1); // se serve, aggiungi righe
       }
+
+      // fallback ultimo: prova ancora più righe
+      layout(fs, lh, 46);
     })();
 
-    // ------------------------------------------------------------
-    // Filtri + connector (come prima)
-    // ------------------------------------------------------------
+    // =========================
+    // FILTRI + connector
+    // =========================
     (function filtersAndConnector() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
