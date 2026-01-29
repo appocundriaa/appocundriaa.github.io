@@ -18,17 +18,21 @@
 
       <div class="header-content">
 
-        <!-- TESTO SORGENTE PER IL CERCHIO (NON VISIBILE) -->
-        <p id="bioSource" class="sr-only">
-È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
-        </p>
-
-        <!-- CERCHIO TESTO -->
+        <!-- BIO: cerchio perfetto via shape-outside -->
         <div class="bio-circle" aria-label="Bio">
-          <div id="bioCircleLines" class="bio-circle__lines"></div>
+          <div class="bio-circle__shape">
+            <!-- i due elementi sotto sono “stampini” invisibili che creano il cerchio -->
+            <span class="shape-left" aria-hidden="true"></span>
+            <span class="shape-right" aria-hidden="true"></span>
+
+            <!-- TESTO (visibile) -->
+            <p class="bio-text">
+              È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
+            </p>
+          </div>
         </div>
 
-        <!-- CONTATTI (aggiornati come mi hai detto) -->
+        <!-- CONTATTI -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -42,13 +46,15 @@
           </div>
         </div>
 
-        <!-- FILTRI (SENZA ALL) + CONNETTORE CURVO -->
+        <!-- FILTRI + connettore -->
         <section class="filters" id="filters" aria-label="Filtri">
-          <svg id="filterConnector" class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            <path id="filterConnectorPath" d="" fill="none"></path>
-          </svg>
 
-          <div class="filter-row">
+          <div class="filter-stack" id="filterStack">
+            <!-- SVG overlay per la “freccia hand-drawn” -->
+            <svg id="filterConnector" class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path id="filterConnectorPath" d="" fill="none"></path>
+            </svg>
+
             <div class="filter-group" data-filter-group="category" id="categoryGroup">
               <button class="pill" data-filter="Essay" type="button">Essay</button>
               <button class="pill" data-filter="Speaking" type="button">Speaking</button>
@@ -73,7 +79,6 @@
   </header>
 
   <main class="page-content">
-    <!-- Griglia come screenshot: anni a sinistra, titoli centrati -->
     <section class="work-grid" aria-label="Lavori">
 
       <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
@@ -106,26 +111,6 @@
         <div class="work-spacer"></div>
       </article>
 
-      <article class="work-row" data-category="Essay" data-tags="History,Fashion">
-        <div class="work-year">2025</div>
-        <div class="work-title">
-          <a class="work-link" href="#" target="_blank" rel="noreferrer">
-            Revolutionaries Hiding in Plain Sight @ Insole Journal ↗
-          </a>
-        </div>
-        <div class="work-spacer"></div>
-      </article>
-
-      <article class="work-row" data-category="Speaking" data-tags="Art,Culture">
-        <div class="work-year">2024</div>
-        <div class="work-title">
-          <a class="work-link" href="#" target="_blank" rel="noreferrer">
-            Reading @ ICA London with Montez Press ↗
-          </a>
-        </div>
-        <div class="work-spacer"></div>
-      </article>
-
     </section>
 
     <footer class="footer">
@@ -134,104 +119,7 @@
 
     <script>
       // ------------------------------------------------------------
-      // 1) CERCHIO: auto-fit “forte” (mai troncare: riduce font finché entra tutto)
-      // ------------------------------------------------------------
-      (function renderBioCircleAutoFit() {
-        const sourceEl = document.getElementById('bioSource');
-        const outEl = document.getElementById('bioCircleLines');
-        if (!sourceEl || !outEl) return;
-
-        const text = (sourceEl.textContent || '').trim().replace(/\s+/g, ' ');
-        if (!text) return;
-
-        const container = outEl.closest('.bio-circle');
-        const ctx = document.createElement('canvas').getContext('2d');
-        const words = text.split(' ');
-
-        // cerchio più piccolo/compatto come screenshot
-        let diameter = Math.min(420, Math.floor(window.innerWidth * 0.86));
-        let fontSize = 14;     // più piccolo
-        let lineHeight = 16;   // più compatto
-        const padding = 10;
-
-        function maxWidthAtY(r, y) {
-          const half = Math.sqrt(Math.max(0, (r * r) - (y * y)));
-          return Math.max(0, 2 * half);
-        }
-
-        function renderOnce(d, fs, lh) {
-          const r = (d / 2) - padding;
-          const linesCount = Math.max(18, Math.floor((2 * r) / lh)); // più righe per chiudere bene il cerchio
-          const yStart = -r + (lh / 2);
-
-          ctx.font = `600 ${fs}px "General Sans", Arial, sans-serif`;
-
-          outEl.innerHTML = '';
-          let idx = 0;
-
-          for (let i = 0; i < linesCount; i++) {
-            const y = yStart + i * lh;
-            const maxW = maxWidthAtY(r, y);
-
-            // righe vicinissime ai poli: vuote (per mantenere la curvatura)
-            if (maxW < fs * 2.2) {
-              const div = document.createElement('div');
-              div.className = 'bio-line';
-              div.style.width = `${maxW}px`;
-              div.style.fontSize = `${fs}px`;
-              div.style.lineHeight = `${lh}px`;
-              div.innerHTML = '&nbsp;';
-              outEl.appendChild(div);
-              continue;
-            }
-
-            let line = '';
-            while (idx < words.length) {
-              const next = line ? (line + ' ' + words[idx]) : words[idx];
-              const w = ctx.measureText(next).width;
-              if (w <= maxW) { line = next; idx++; }
-              else break;
-            }
-
-            // se una parola è troppo lunga, la forziamo comunque
-            if (!line && idx < words.length) { line = words[idx++]; }
-
-            const div = document.createElement('div');
-            div.className = 'bio-line';
-            div.style.width = `${maxW}px`;
-            div.style.fontSize = `${fs}px`;
-            div.style.lineHeight = `${lh}px`;
-            div.textContent = line;
-            outEl.appendChild(div);
-
-            if (idx >= words.length) break;
-          }
-
-          return idx >= words.length;
-        }
-
-        // Set diametro sul container (via CSS var)
-        container.style.setProperty('--bio-d', `${diameter}px`);
-
-        // Prova: se non entra tutto, riduci gradualmente font e line-height
-        let ok = false;
-        for (let attempt = 0; attempt < 30; attempt++) {
-          ok = renderOnce(diameter, fontSize, lineHeight);
-          if (ok) break;
-          fontSize = Math.max(11, fontSize - 0.5);
-          lineHeight = Math.max(fontSize + 1, lineHeight - 0.5);
-        }
-
-        // Ultimo fallback: se ancora non entra (rarissimo), aumenta leggermente diametro
-        if (!ok) {
-          diameter = Math.min(520, diameter + 80);
-          container.style.setProperty('--bio-d', `${diameter}px`);
-          renderOnce(diameter, fontSize, lineHeight);
-        }
-      })();
-
-      // ------------------------------------------------------------
-      // 2) FILTRI: default Journalism + Fashion, senza ALL (clic = seleziona)
+      // FILTRI: default Journalism + Fashion (no ALL)
       // ------------------------------------------------------------
       (function filtersAndConnector() {
         const state = { category: 'Journalism', tag: 'Fashion' };
@@ -281,9 +169,9 @@
         updateList();
 
         // ------------------------------------------------------------
-        // 3) Linea curva irregolare tra i due bottoni attivi
+        // “Freccia” più hand-drawn (jitter)
         // ------------------------------------------------------------
-        const filtersEl = document.getElementById('filters');
+        const stackEl = document.getElementById('filterStack');
         const svg = document.getElementById('filterConnector');
         const path = document.getElementById('filterConnectorPath');
 
@@ -298,7 +186,7 @@
 
           if (!a || !b) { path.setAttribute('d', ''); return; }
 
-          const fr = filtersEl.getBoundingClientRect();
+          const fr = stackEl.getBoundingClientRect();
           const p1 = centerOf(a);
           const p2 = centerOf(b);
 
@@ -307,14 +195,31 @@
           const x2 = ((p2.x - fr.left) / fr.width) * 100;
           const y2 = ((p2.y - fr.top) / fr.height) * 100;
 
-          // Curva “a mano” simile screenshot
+          // curva base
+          const midX = (x1 + x2) / 2;
           const midY = (y1 + y2) / 2;
-          const d = `M ${x1} ${y1}
-                     C ${x1} ${midY - 8},
-                       ${x2} ${midY + 8},
-                       ${x2} ${y2}`;
+
+          // jitter deterministico (dipende da x1,x2 così è stabile)
+          const seed = Math.abs(Math.sin((x1 + 13) * 12.9898 + (x2 + 7) * 78.233)) * 43758.5453;
+          const j = (n) => (Math.sin(seed + n) * 0.9);
+
+          // punti “a mano” (simile alla tua foto: un po' su/giù, più organico)
+          const pA = { x: x1, y: y1 };
+          const pB = { x: midX - 10 + j(1)*2, y: midY - 18 + j(2)*3 };
+          const pC = { x: midX + 10 + j(3)*2, y: midY + 14 + j(4)*3 };
+          const pD = { x: x2, y: y2 };
+
+          // path con curve quadratiche concatenate
+          const d = `
+            M ${pA.x} ${pA.y}
+            Q ${pB.x} ${pB.y} ${midX} ${midY}
+            Q ${pC.x} ${pC.y} ${pD.x} ${pD.y}
+          `;
 
           path.setAttribute('d', d);
+
+          // aggiorna viewBox effettivo (non serve ma mantiene pulito)
+          svg.setAttribute('viewBox', '0 0 100 100');
         }
 
         window.addEventListener('resize', drawConnector);
