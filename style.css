@@ -1,9 +1,4 @@
-/* -----------------------
-   FONT: KeroinePRO
-   Metti i file in /fonts
-   - consigliato: .woff2 + .woff
-   - ok anche: .otf (più pesante)
------------------------- */
+/* FONT (metti i file in /fonts se li hai) */
 @font-face{
   font-family: "KeroinePRO";
   src:
@@ -22,7 +17,7 @@
   --pill-border: rgba(0,0,0,.35);
 
   --shape-w: 420px;
-  --shape-h: 380px;
+  --shape-h: 320px;
   --shape-fs: 11px;
   --shape-lh: 13px;
 }
@@ -49,7 +44,7 @@ body{
 }
 
 /* Header */
-.header{ padding: 22px 0 0; }
+.header{ padding: 18px 0 0; }
 
 .header-grid{
   display: grid;
@@ -63,15 +58,15 @@ body{
   padding: 0 10px;
 }
 
-/* T-SHIRT shape */
+/* MAGLIETTA: altezza si adatta al testo (NO spazio bianco) */
 .shape-wrap{
   width: var(--shape-w);
   height: var(--shape-h);
   max-width: min(var(--shape-w), 92vw);
   display: grid;
-  place-items: center;
+  place-items: start center;
   margin-top: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .shape-lines{
@@ -80,7 +75,7 @@ body{
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .shape-line{
@@ -95,7 +90,7 @@ body{
 
 /* Contatti */
 .contact-wrapper{
-  margin-top: 10px;
+  margin-top: 8px;
   text-align: center;
 }
 
@@ -165,7 +160,7 @@ body{
   border-color: #000;
 }
 
-/* freccia */
+/* connector */
 .filter-connector{
   position: absolute;
   inset: 0;
@@ -173,7 +168,6 @@ body{
   height: 100%;
   pointer-events: none;
 }
-
 #filterConnectorPath{
   stroke: #000;
   stroke-width: 1.2;
