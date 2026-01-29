@@ -145,7 +145,6 @@
       return (str) => ctx.measureText(str).width;
     }
 
-    // stessa sagoma del clip
     const CLIP_POLY = [
       {x:140, y:115},
       {x:372, y:115},
@@ -173,7 +172,6 @@
       return p1.x + t * (p2.x - p1.x);
     }
 
-    // Se ci sono 4 intersezioni (maniche), prendiamo la CAMPATA PIÙ LARGA (non la più stretta)
     function widthAtY(y){
       const xs = [];
       for (let i = 0; i < CLIP_POLY.length; i++){
@@ -185,7 +183,6 @@
       if (xs.length < 2) return 0;
       xs.sort((m,n) => m - n);
 
-      // genera segmenti [x0-x1], [x2-x3], ...
       let best = 0;
       for (let i = 0; i + 1 < xs.length; i += 2){
         best = Math.max(best, xs[i+1] - xs[i]);
@@ -372,20 +369,24 @@
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
 
+      // ✅ PUNTO DI PARTENZA/FINE SUI BORDI:
+      // - categoria: centro X ma Y sul BASSO del bottone
+      // - subcategoria: centro X ma Y sull'ALTO del bottone
       const x1 = ((ra.left + ra.width/2) - fr.left) / fr.width * 100;
-      const y1 = ((ra.top + ra.height/2) - fr.top) / fr.height * 100;
+      const y1 = (ra.bottom - fr.top) / fr.height * 100;  // bottom edge
       const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
-      const y2 = ((rb.top + rb.height/2) - fr.top) / fr.height * 100;
+      const y2 = (rb.top - fr.top) / fr.height * 100;     // top edge
 
-      // ✅ COLORE RANDOM OGNI VOLTA (INLINE -> non lo sovrascrive il CSS)
+      // ✅ colore random ogni volta (inline)
       s.style.stroke = randomScribbleColor();
 
       const r = seededRand(seedKey);
 
+      // curva base + jitter “scarabocchio”
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 - 10 + (r()-0.5)*6;
+      const cy1 = y1 + (r()-0.5)*8;    // leggero jitter
       const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y2 + 10 + (r()-0.5)*6;
+      const cy2 = y2 + (r()-0.5)*8;
 
       function bezier(t){
         const mt = 1 - t;
