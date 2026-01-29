@@ -350,6 +350,13 @@
       };
     }
 
+    function randomScribbleColor(){
+      const hue = Math.floor(Math.random() * 360);
+      const sat = 75 + Math.random() * 20;   // 75–95%
+      const light = 35 + Math.random() * 20; // 35–55%
+      return `hsl(${hue} ${sat}% ${light}%)`;
+    }
+
     function drawScribble(seedKey) {
       const stackEl = document.getElementById('filterStack');
       const categoryGroup = document.getElementById('categoryGroup');
@@ -370,11 +377,8 @@
       const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
       const y2 = ((rb.top + rb.height/2) - fr.top) / fr.height * 100;
 
-      // ✅ COLORE RANDOM OGNI VOLTA
-      const hue = Math.floor(Math.random() * 360);
-      const sat = 75 + Math.random() * 20;   // 75–95%
-      const light = 35 + Math.random() * 20; // 35–55%
-      s.setAttribute('stroke', `hsl(${hue} ${sat}% ${light}%)`);
+      // ✅ COLORE RANDOM OGNI VOLTA (INLINE -> non lo sovrascrive il CSS)
+      s.style.stroke = randomScribbleColor();
 
       const r = seededRand(seedKey);
 
