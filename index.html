@@ -131,7 +131,7 @@
   </main>
 
   <script>
-    // ======== TESTO T-SHIRT: SVG TEXT (robusto, niente "lettere in colonna") ========
+    // ======== TESTO T-SHIRT: SVG TEXT ========
 
     function getBioText(){
       const src = document.getElementById('bioSource');
@@ -166,7 +166,7 @@
       const y1 = p1.y, y2 = p2.y;
       const minY = Math.min(y1, y2);
       const maxY = Math.max(y1, y2);
-      if (y < minY || y >= maxY) return null; // [min, max)
+      if (y < minY || y >= maxY) return null;
       if (y1 === y2) return null;
       const t = (y - y1) / (y2 - y1);
       return p1.x + t * (p2.x - p1.x);
@@ -258,7 +258,7 @@
           idx = lastGoodIdx;
         }
 
-        return { finished: idx >= text.length, lines, lineH };
+        return { finished: idx >= text.length, lines };
       }
 
       const MAX = 44;
@@ -349,8 +349,8 @@
 
     function randomScribbleColor(){
       const hue = Math.floor(Math.random() * 360);
-      const sat = 75 + Math.random() * 20;   // 75–95%
-      const light = 35 + Math.random() * 20; // 35–55%
+      const sat = 75 + Math.random() * 20;
+      const light = 35 + Math.random() * 20;
       return `hsl(${hue} ${sat}% ${light}%)`;
     }
 
@@ -369,22 +369,25 @@
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
 
-      // ✅ PUNTO DI PARTENZA/FINE SUI BORDI:
-      // - categoria: centro X ma Y sul BASSO del bottone
-      // - subcategoria: centro X ma Y sull'ALTO del bottone
-      const x1 = ((ra.left + ra.width/2) - fr.left) / fr.width * 100;
-      const y1 = (ra.bottom - fr.top) / fr.height * 100;  // bottom edge
-      const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
-      const y2 = (rb.top - fr.top) / fr.height * 100;     // top edge
+      // stroke width in px (non-scaling-stroke)
+      const swPx = parseFloat(getComputedStyle(s).strokeWidth) || 1.25;
+      const edgePadPct = ((swPx / 2) / fr.height) * 100; // mezzo stroke fuori dal bottone
 
-      // ✅ colore random ogni volta (inline)
+      // ✅ ATTACCHI ESATTI SUL BORDO (metà bordo)
+      const x1 = ((ra.left + ra.width/2) - fr.left) / fr.width * 100;
+      const y1 = ((ra.bottom - fr.top) / fr.height) * 100 + edgePadPct; // sotto + mezzo stroke
+
+      const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
+      const y2 = ((rb.top - fr.top) / fr.height) * 100 - edgePadPct;    // sopra - mezzo stroke
+
+      // colore random ogni volta
       s.style.stroke = randomScribbleColor();
 
       const r = seededRand(seedKey);
 
-      // curva base + jitter “scarabocchio”
+      // controlli (jitter leggero ma endpoints rimangono esatti)
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 + (r()-0.5)*8;    // leggero jitter
+      const cy1 = y1 + (r()-0.5)*8;
       const cx2 = x1 + (x2 - x1) * 0.75;
       const cy2 = y2 + (r()-0.5)*8;
 
@@ -400,6 +403,13 @@
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const p = bezier(t);
+
+        // ✅ NIENTE jitter sugli estremi, così “tocca” preciso
+        if (i === 0 || i === steps) {
+          pts.push({ x: p.x, y: p.y });
+          continue;
+        }
+
         const amp = Math.sin(Math.PI * t) * 2.2;
         pts.push({
           x: p.x + (r()-0.5)*amp*2.4,
