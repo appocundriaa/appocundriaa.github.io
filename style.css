@@ -16,7 +16,6 @@ body{
   color: var(--text);
 }
 
-/* Utility: testo solo per screen reader */
 .sr-only{
   position:absolute!important;
   width:1px!important;
@@ -52,7 +51,7 @@ body{
   display: grid;
   place-items: center;
   margin-top: 8px;
-  margin-bottom: 6px; /* riduce il “buco” prima dei contatti */
+  margin-bottom: 4px;
 }
 
 .bio-circle__lines{
@@ -63,11 +62,11 @@ body{
   justify-content: center;
 }
 
-/* controllati da JS via var */
+/* fs/lh controllati da JS */
 .bio-line{
   font-weight: 600;
-  font-size: var(--bio-fs, 13px);
-  line-height: var(--bio-lh, 15px);
+  font-size: var(--bio-fs, 11.5px);
+  line-height: var(--bio-lh, 13.5px);
   letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
@@ -146,7 +145,7 @@ body{
   border-color: #000;
 }
 
-/* freccia overlay */
+/* freccia */
 .filter-connector{
   position: absolute;
   inset: 0;
@@ -169,7 +168,7 @@ body{
   padding-bottom: 40px;
 }
 
-/* Work grid: anni a sinistra, titoli centrati */
+/* Work list */
 .work-grid{
   width: 100%;
   display: grid;
