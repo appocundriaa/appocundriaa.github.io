@@ -20,39 +20,41 @@
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- T-SHIRT (solo testo, nessun bordo nero) -->
+        <!-- T-SHIRT -->
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
-          <svg class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
+          <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
-              <!-- Clip: maglietta senza collo, come il tuo disegno (spalle larghe, maniche inclinate, torso dritto) -->
-              <clipPath id="tshirtClip" clipPathUnits="userSpaceOnUse">
-                <!-- Sagoma più simile al foglio: top piatto, maniche inclinate, sotto-ascella, corpo rettangolare -->
-                <path d="
-                  M 126 140
-                  L 210 112
-                  L 302 112
-                  L 386 140
-
-                  L 412 210
-                  L 372 248
-                  L 340 228
-
-                  L 340 430
-                  L 172 430
-                  L 172 228
-                  L 140 248
-                  L 100 210
+              <!--
+                SHAPE: usa SOLO come clip (invisibile).
+                NIENTE COLLO. NIENTE BORDO VISIBILE.
+              -->
+              <clipPath id="tshirtInnerClip" clipPathUnits="userSpaceOnUse">
+                <path id="tshirtInnerPath" d="
+                  M 140 115
+                  L 372 115
+                  L 460 195
+                  L 420 250
+                  L 350 230
+                  L 350 430
+                  L 162 430
+                  L 162 230
+                  L 92 250
+                  L 52 195
                   Z
-                " />
+                "/>
               </clipPath>
             </defs>
 
-            <!-- Testo clippato nella forma -->
-            <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtClip)">
+            <!-- TESTO clippato: la forma è fatta SOLO dal testo -->
+            <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtInnerClip)">
               <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
                 <div id="tshirtText" class="tshirt-text"></div>
               </div>
             </foreignObject>
+
+            <!-- IMPORTANTISSIMO:
+                 NESSUN PATH DI BORDO QUI.
+                 La sagoma NON deve vedersi. -->
           </svg>
         </div>
 
@@ -141,156 +143,46 @@
   </main>
 
   <script>
-    // testo sorgente: NON lo cambia, solo normalizza spazi per stabilità
-    function getBioText(){
+    // 1) monta testo
+    function mountTshirtText() {
       const src = document.getElementById('bioSource');
-      return (src?.textContent || '').trim().replace(/\s+/g, ' ');
+      const target = document.getElementById('tshirtText');
+      if (!src || !target) return;
+
+      // NON cambia contenuto, solo normalizza spazi per wrapping stabile
+      target.textContent = src.textContent.trim().replace(/\s+/g, ' ');
     }
 
-    // canvas measure
-    function makeMeasure(font){
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d');
-      ctx.font = font;
-      return (str) => ctx.measureText(str).width;
-    }
-
-    // PROFILO maglietta (0..1 -> larghezza relativa 0..1)
-    // tarato per la clipPath sopra: spalle larghissime, maniche, poi torso dritto.
-    function tshirtProfile(t){
-      // t = 0 top -> 1 bottom
-      if (t < 0.12) return 0.96; // top: larghissimo (spalle)
-      if (t < 0.26) return 0.92; // maniche ancora larghe
-      if (t < 0.36) return 0.82; // sotto ascella stringe
-      if (t < 0.92) return 0.80; // torso quasi costante
-      return 0.82;               // fondo leggermente più largo
-    }
-
-    // layout a righe: spezza anche a metà parola (char-by-char), senza perdere testo
-    function layoutTshirtText(){
+    // 2) fit: vogliamo che il testo RIEMPIA l’interno e parta dall’alto
+    function fitTshirtTextFill() {
       const fo = document.querySelector('.tshirt-fo');
-      const host = document.getElementById('tshirtText');
-      if (!fo || !host) return;
+      const t = document.getElementById('tshirtText');
+      if (!fo || !t) return;
 
-      const text = getBioText();
-      host.innerHTML = '';
-      if (!text) return;
+      // reset
+      t.style.fontSize = '10px';
 
-      // IMPORTANTISSIMO: niente tagli interni (se nel CSS c'è overflow hidden lo neutralizziamo qui)
-      host.style.overflow = 'visible';
-      host.style.whiteSpace = 'normal';
-      host.style.wordBreak = 'normal';
-      host.style.hyphens = 'none';
-      host.style.display = 'flex';
-      host.style.flexDirection = 'column';
-      host.style.alignItems = 'center';
-      host.style.justifyContent = 'flex-start';
-      host.style.width = '100%';
+      const maxH = fo.clientHeight;
+      const maxW = fo.clientWidth;
 
-      const W = fo.clientWidth;
-      const H = fo.clientHeight;
-
-      // inset verticali piccoli (parti su, ma non incolli al bordo)
-      const topInset = Math.round(H * 0.025);
-      const bottomInset = Math.round(H * 0.03);
-      const usableH = Math.max(1, H - topInset - bottomInset);
-
-      const lineHeightRatio = 1.12;
-
-      // GUTTER: margine di sicurezza per evitare che le lettere vengano “morsicate” dal clip
-      const gutterPx = Math.max(10, Math.round(W * 0.02)); // ~2% width, min 10px
-      const profileSafety = 0.94; // ulteriore safety sul profilo
-
-      function tryFit(size){
-        const lineH = size * lineHeightRatio;
-        const maxLines = Math.max(1, Math.floor(usableH / lineH));
-
-        // includo il peso nel font usato dal canvas (coerente con CSS)
-        const font = `600 ${size}px KeroinePRO, "General Sans", Arial, sans-serif`;
-        const measure = makeMeasure(font);
-
-        let idx = 0;
-        const lines = [];
-
-        for (let i = 0; i < maxLines && idx < text.length; i++){
-          const tt = i / Math.max(1, (maxLines - 1));
-          const maxW = Math.max(1, (W * tshirtProfile(tt) * profileSafety) - gutterPx);
-
-          let chunk = '';
-          let lastGood = '';
-          let lastGoodIdx = idx;
-
-          // riempi char-by-char finché ci sta
-          while (idx < text.length){
-            const next = chunk + text[idx];
-            if (measure(next) <= maxW){
-              chunk = next;
-              lastGood = chunk;
-              lastGoodIdx = idx + 1;
-              idx++;
-            } else {
-              break;
-            }
-          }
-
-          // se non ci sta nemmeno 1 carattere (riga strettissima), forzo 1 char
-          if (!lastGood){
-            lastGood = text[idx] || '';
-            lastGoodIdx = idx + 1;
-            idx = lastGoodIdx;
-          }
-
-          // tolgo solo spazi a inizio riga (non tocco il contenuto globale)
-          lines.push(lastGood.replace(/^\s+/, ''));
-          idx = lastGoodIdx;
-        }
-
-        return { finished: idx >= text.length, lines, lineH };
-      }
-
-      // prendo il font più grande che riesce a mettere TUTTO il testo
-      const maxFont = 44;
-      const minFont = 9; // scendo un pelo di più per non perdere mai testo
-      let best = null;
-
-      for (let s = maxFont; s >= minFont; s -= 0.5){
-        const res = tryFit(s);
-        if (res.finished){
-          best = { fontSize: s, ...res };
+      // fase A: cresce finché sta dentro (massimizza font size)
+      let size = 10;
+      for (let i = 0; i < 120; i++) {
+        t.style.fontSize = size + 'px';
+        const tooTall = t.scrollHeight > maxH;
+        const tooWide = t.scrollWidth > maxW;
+        if (tooTall || tooWide) {
+          size -= 0.5;
+          t.style.fontSize = size + 'px';
           break;
         }
+        size += 0.5;
       }
 
-      // se non entra comunque, riduco al minimo (ma NON “sparisco” testo: lo mostro il più possibile)
-      if (!best){
-        const res = tryFit(minFont);
-        best = { fontSize: minFont, ...res };
-      }
-
-      host.style.fontSize = best.fontSize + 'px';
-      host.style.lineHeight = lineHeightRatio.toString();
-      host.style.paddingTop = topInset + 'px';
-      host.style.paddingBottom = bottomInset + 'px';
-
-      // render righe a larghezza variabile (coerente col profilo + gutter)
-      const n = best.lines.length;
-      for (let i = 0; i < n; i++){
-        const tt = i / Math.max(1, (n - 1));
-        const lineW = Math.max(1, Math.round((W * tshirtProfile(tt) * profileSafety) - gutterPx));
-
-        const div = document.createElement('div');
-        div.className = 'tline';
-        div.style.width = lineW + 'px';
-        div.style.textAlign = 'center';
-        div.style.whiteSpace = 'nowrap';
-        div.style.overflow = 'visible';
-        div.style.margin = '0 auto';
-        div.textContent = best.lines[i];
-        host.appendChild(div);
-      }
+      // fase B: (rimossa: ora gestiamo la posizione da CSS con margin-top)
     }
 
-    // filtri
+    // 3) filtri base
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
@@ -331,7 +223,7 @@
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // scarabocchio
+    // 4) scarabocchio singolo (hand drawn)
     function seededRand(seedStr) {
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
@@ -366,10 +258,11 @@
 
       const r = seededRand(seedKey);
 
+      // curva base + jitter “scarabocchio”
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 - 10 + (r()-0.5)*8;
+      const cy1 = y1 - 10 + (r()-0.5)*6;
       const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y2 + 10 + (r()-0.5)*8;
+      const cy2 = y2 + 10 + (r()-0.5)*6;
 
       function bezier(t){
         const mt = 1 - t;
@@ -379,14 +272,14 @@
       }
 
       const pts = [];
-      const steps = 26;
+      const steps = 22;
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const p = bezier(t);
-        const amp = Math.sin(Math.PI * t) * 2.6;
+        const amp = Math.sin(Math.PI * t) * 2.2; // jitter più a metà
         pts.push({
-          x: p.x + (r()-0.5)*amp*3.0,
-          y: p.y + (r()-0.5)*amp*3.4
+          x: p.x + (r()-0.5)*amp*2.4,
+          y: p.y + (r()-0.5)*amp*3.0
         });
       }
 
@@ -398,29 +291,22 @@
         d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
       }
       d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
+
       s.setAttribute('d', d);
     }
 
-    function init(){
+    (function init(){
+      mountTshirtText();
       setupFilters();
-
-      // aspetta il font (misure corrette)
-      const run = () => layoutTshirtText();
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(run);
-      } else {
-        run();
-      }
+      fitTshirtTextFill();
 
       window.addEventListener('resize', () => {
-        layoutTshirtText();
+        fitTshirtTextFill();
         const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
         const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
         drawScribble(c + '|' + t);
       });
-    }
-
-    init();
+    })();
   </script>
 
 </body>
