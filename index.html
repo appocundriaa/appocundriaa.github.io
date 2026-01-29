@@ -24,141 +24,302 @@
         </p>
 
         <!-- CERCHIO TESTO -->
-        <div class="bio-circle">
+        <div class="bio-circle" aria-label="Bio">
           <div id="bioCircleLines" class="bio-circle__lines"></div>
         </div>
 
-        <!-- CONTATTI -->
+        <!-- CONTATTI (aggiornati come mi hai detto) -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
-            <a class="link" href="mailto:ciao@marcomarino.cc">ciao@marcomarino.cc</a>
+            <a class="link" href="mailto:mmarino1@iuav.it">mmarino1@iuav.it</a>
             <span class="sep">|</span>
-            <a class="link" href="#" target="_blank">@marcomarino ↗</a>
+            <a class="link" href="https://www.instagram.com/appocundriaa/" target="_blank" rel="noreferrer">
+              @appocundriaa ↗
+            </a>
             <span class="sep">|</span>
-            <a class="link" href="#" target="_blank">substack.com ↗</a>
+            <a class="link" href="#" target="_blank" rel="noreferrer">substack.com ↗</a>
           </div>
         </div>
 
-        <!-- FILTRI -->
-        <section class="filters">
+        <!-- FILTRI (SENZA ALL) + CONNETTORE CURVO -->
+        <section class="filters" id="filters" aria-label="Filtri">
+          <svg id="filterConnector" class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+            <path id="filterConnectorPath" d="" fill="none"></path>
+          </svg>
+
           <div class="filter-row">
-            <div class="filter-group" data-filter-group="category">
-              <button class="pill is-active" data-filter="all">All</button>
-              <button class="pill" data-filter="Essay">Essay</button>
-              <button class="pill" data-filter="Speaking">Speaking</button>
-              <button class="pill" data-filter="Editing">Editing</button>
-              <button class="pill" data-filter="Journalism">Journalism</button>
+            <div class="filter-group" data-filter-group="category" id="categoryGroup">
+              <button class="pill" data-filter="Essay" type="button">Essay</button>
+              <button class="pill" data-filter="Speaking" type="button">Speaking</button>
+              <button class="pill" data-filter="Editing" type="button">Editing</button>
+              <button class="pill is-active" data-filter="Journalism" type="button">Journalism</button>
             </div>
 
-            <div class="filter-group" data-filter-group="tag">
-              <button class="pill is-active" data-filter="all">All</button>
-              <button class="pill" data-filter="Fashion">Fashion</button>
-              <button class="pill" data-filter="Art">Art</button>
-              <button class="pill" data-filter="Culture">Culture</button>
-              <button class="pill" data-filter="Design">Design</button>
-              <button class="pill" data-filter="History">History</button>
+            <div class="filter-group" data-filter-group="tag" id="tagGroup">
+              <button class="pill is-active" data-filter="Fashion" type="button">Fashion</button>
+              <button class="pill" data-filter="Art" type="button">Art</button>
+              <button class="pill" data-filter="Culture" type="button">Culture</button>
+              <button class="pill" data-filter="Design" type="button">Design</button>
+              <button class="pill" data-filter="History" type="button">History</button>
             </div>
           </div>
         </section>
 
       </div>
+
       <div class="spacer"></div>
     </div>
   </header>
 
   <main class="page-content">
-    <div class="content-grid">
-      <section class="work-list">
+    <!-- Griglia come screenshot: anni a sinistra, titoli centrati -->
+    <section class="work-grid" aria-label="Lavori">
 
-        <article class="work-item" data-category="Journalism" data-tags="Fashion,Design">
-          <p class="date">2025</p>
-          <a class="work-link" href="#"><p class="title">Behind the Campaign</p><span class="arrow">↗</span></a>
-        </article>
+      <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
+        <div class="work-year">2025</div>
+        <div class="work-title">
+          <a class="work-link" href="#" target="_blank" rel="noreferrer">
+            Behind the Campaign @ Miu Miu with Lengua ↗
+          </a>
+        </div>
+        <div class="work-spacer"></div>
+      </article>
 
-        <article class="work-item" data-category="Essay" data-tags="History,Fashion">
-          <p class="date">2025</p>
-          <a class="work-link" href="#"><p class="title">Revolutionaries Hiding in Plain Sight</p><span class="arrow">↗</span></a>
-        </article>
+      <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
+        <div class="work-year">2025</div>
+        <div class="work-title">
+          <a class="work-link" href="#" target="_blank" rel="noreferrer">
+            An Interview with Evan Kinori @ 1 Granary ↗
+          </a>
+        </div>
+        <div class="work-spacer"></div>
+      </article>
 
-        <article class="work-item" data-category="Speaking" data-tags="Culture,Art">
-          <p class="date">2024</p>
-          <a class="work-link" href="#"><p class="title">Reading @ ICA London</p><span class="arrow">↗</span></a>
-        </article>
+      <article class="work-row" data-category="Journalism" data-tags="Fashion,Culture">
+        <div class="work-year">2025</div>
+        <div class="work-title">
+          <a class="work-link" href="#" target="_blank" rel="noreferrer">
+            Trend Forecasters on Predicting the Future @ 1 Granary ↗
+          </a>
+        </div>
+        <div class="work-spacer"></div>
+      </article>
 
-      </section>
+      <article class="work-row" data-category="Essay" data-tags="History,Fashion">
+        <div class="work-year">2025</div>
+        <div class="work-title">
+          <a class="work-link" href="#" target="_blank" rel="noreferrer">
+            Revolutionaries Hiding in Plain Sight @ Insole Journal ↗
+          </a>
+        </div>
+        <div class="work-spacer"></div>
+      </article>
 
-      <footer class="footer">
-        <p>© 2026 – Marco Marino</p>
-      </footer>
-    </div>
+      <article class="work-row" data-category="Speaking" data-tags="Art,Culture">
+        <div class="work-year">2024</div>
+        <div class="work-title">
+          <a class="work-link" href="#" target="_blank" rel="noreferrer">
+            Reading @ ICA London with Montez Press ↗
+          </a>
+        </div>
+        <div class="work-spacer"></div>
+      </article>
 
-    <!-- JS: CERCHIO + FILTRI -->
+    </section>
+
+    <footer class="footer">
+      <p>© 2026 – Marco Marino</p>
+    </footer>
+
     <script>
-    (function renderBioCircle() {
-      const text = document.getElementById('bioSource').textContent.trim().replace(/\s+/g,' ');
-      const out = document.getElementById('bioCircleLines');
-      const diameter = 520;
-      const lineHeight = 34;
-      const padding = 12;
+      // ------------------------------------------------------------
+      // 1) CERCHIO: auto-fit “forte” (mai troncare: riduce font finché entra tutto)
+      // ------------------------------------------------------------
+      (function renderBioCircleAutoFit() {
+        const sourceEl = document.getElementById('bioSource');
+        const outEl = document.getElementById('bioCircleLines');
+        if (!sourceEl || !outEl) return;
 
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      ctx.font = '600 32px "General Sans", Arial';
+        const text = (sourceEl.textContent || '').trim().replace(/\s+/g, ' ');
+        if (!text) return;
 
-      const words = text.split(' ');
-      const r = (diameter/2)-padding;
-      const linesCount = Math.floor((2*r)/lineHeight);
-      const yStart = -r + (lineHeight/2);
+        const container = outEl.closest('.bio-circle');
+        const ctx = document.createElement('canvas').getContext('2d');
+        const words = text.split(' ');
 
-      const maxWidthAtY = y => 2*Math.sqrt(Math.max(0,(r*r)-(y*y)));
+        // cerchio più piccolo/compatto come screenshot
+        let diameter = Math.min(420, Math.floor(window.innerWidth * 0.86));
+        let fontSize = 14;     // più piccolo
+        let lineHeight = 16;   // più compatto
+        const padding = 10;
 
-      let idx=0;
-      out.innerHTML='';
-
-      for(let i=0;i<linesCount;i++){
-        const y = yStart + i*lineHeight;
-        const maxW = maxWidthAtY(y);
-
-        let line='', w=0;
-        while(idx<words.length){
-          const test=line?line+' '+words[idx]:words[idx];
-          const tw=ctx.measureText(test).width;
-          if(tw<=maxW){line=test;w=tw;idx++} else break;
+        function maxWidthAtY(r, y) {
+          const half = Math.sqrt(Math.max(0, (r * r) - (y * y)));
+          return Math.max(0, 2 * half);
         }
 
-        const div=document.createElement('div');
-        div.className='bio-line';
-        div.style.width=maxW+'px';
-        div.textContent=line||'';
-        out.appendChild(div);
-      }
-    })();
+        function renderOnce(d, fs, lh) {
+          const r = (d / 2) - padding;
+          const linesCount = Math.max(18, Math.floor((2 * r) / lh)); // più righe per chiudere bene il cerchio
+          const yStart = -r + (lh / 2);
 
-    (function filters(){
-      const state={category:'all',tag:'all'};
-      const norm=t=>t.split(',').map(x=>x.trim());
-      const update=()=>{
-        document.querySelectorAll('.work-item').forEach(it=>{
-          const c=it.dataset.category;
-          const tags=norm(it.dataset.tags||'');
-          const okC=state.category==='all'||c===state.category;
-          const okT=state.tag==='all'||tags.includes(state.tag);
-          it.style.display=(okC&&okT)?'':'none';
-        });
-      };
-      document.querySelectorAll('.filter-group').forEach(g=>{
-        g.addEventListener('click',e=>{
-          const b=e.target.closest('button'); if(!b)return;
-          const grp=g.dataset.filterGroup;
-          state[grp]=b.dataset.filter;
-          g.querySelectorAll('.pill').forEach(p=>p.classList.remove('is-active'));
-          b.classList.add('is-active');
-          update();
-        });
-      });
-      update();
-    })();
+          ctx.font = `600 ${fs}px "General Sans", Arial, sans-serif`;
+
+          outEl.innerHTML = '';
+          let idx = 0;
+
+          for (let i = 0; i < linesCount; i++) {
+            const y = yStart + i * lh;
+            const maxW = maxWidthAtY(r, y);
+
+            // righe vicinissime ai poli: vuote (per mantenere la curvatura)
+            if (maxW < fs * 2.2) {
+              const div = document.createElement('div');
+              div.className = 'bio-line';
+              div.style.width = `${maxW}px`;
+              div.style.fontSize = `${fs}px`;
+              div.style.lineHeight = `${lh}px`;
+              div.innerHTML = '&nbsp;';
+              outEl.appendChild(div);
+              continue;
+            }
+
+            let line = '';
+            while (idx < words.length) {
+              const next = line ? (line + ' ' + words[idx]) : words[idx];
+              const w = ctx.measureText(next).width;
+              if (w <= maxW) { line = next; idx++; }
+              else break;
+            }
+
+            // se una parola è troppo lunga, la forziamo comunque
+            if (!line && idx < words.length) { line = words[idx++]; }
+
+            const div = document.createElement('div');
+            div.className = 'bio-line';
+            div.style.width = `${maxW}px`;
+            div.style.fontSize = `${fs}px`;
+            div.style.lineHeight = `${lh}px`;
+            div.textContent = line;
+            outEl.appendChild(div);
+
+            if (idx >= words.length) break;
+          }
+
+          return idx >= words.length;
+        }
+
+        // Set diametro sul container (via CSS var)
+        container.style.setProperty('--bio-d', `${diameter}px`);
+
+        // Prova: se non entra tutto, riduci gradualmente font e line-height
+        let ok = false;
+        for (let attempt = 0; attempt < 30; attempt++) {
+          ok = renderOnce(diameter, fontSize, lineHeight);
+          if (ok) break;
+          fontSize = Math.max(11, fontSize - 0.5);
+          lineHeight = Math.max(fontSize + 1, lineHeight - 0.5);
+        }
+
+        // Ultimo fallback: se ancora non entra (rarissimo), aumenta leggermente diametro
+        if (!ok) {
+          diameter = Math.min(520, diameter + 80);
+          container.style.setProperty('--bio-d', `${diameter}px`);
+          renderOnce(diameter, fontSize, lineHeight);
+        }
+      })();
+
+      // ------------------------------------------------------------
+      // 2) FILTRI: default Journalism + Fashion, senza ALL (clic = seleziona)
+      // ------------------------------------------------------------
+      (function filtersAndConnector() {
+        const state = { category: 'Journalism', tag: 'Fashion' };
+
+        const categoryGroup = document.getElementById('categoryGroup');
+        const tagGroup = document.getElementById('tagGroup');
+
+        const normTags = (raw) => (raw || '')
+          .split(',')
+          .map(s => s.trim())
+          .filter(Boolean);
+
+        const setActive = (groupEl, value) => {
+          groupEl.querySelectorAll('.pill').forEach(btn => {
+            btn.classList.toggle('is-active', btn.dataset.filter === value);
+          });
+        };
+
+        const updateList = () => {
+          document.querySelectorAll('.work-row').forEach((row) => {
+            const c = row.getAttribute('data-category') || '';
+            const tags = normTags(row.getAttribute('data-tags'));
+
+            const okC = c === state.category;
+            const okT = tags.includes(state.tag);
+
+            row.style.display = (okC && okT) ? '' : 'none';
+          });
+        };
+
+        function onClick(groupEl, key) {
+          groupEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('button[data-filter]');
+            if (!btn) return;
+            state[key] = btn.dataset.filter;
+            setActive(groupEl, state[key]);
+            updateList();
+            drawConnector();
+          });
+        }
+
+        onClick(categoryGroup, 'category');
+        onClick(tagGroup, 'tag');
+
+        setActive(categoryGroup, state.category);
+        setActive(tagGroup, state.tag);
+        updateList();
+
+        // ------------------------------------------------------------
+        // 3) Linea curva irregolare tra i due bottoni attivi
+        // ------------------------------------------------------------
+        const filtersEl = document.getElementById('filters');
+        const svg = document.getElementById('filterConnector');
+        const path = document.getElementById('filterConnectorPath');
+
+        function centerOf(el) {
+          const r = el.getBoundingClientRect();
+          return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+        }
+
+        function drawConnector() {
+          const a = categoryGroup.querySelector('.pill.is-active');
+          const b = tagGroup.querySelector('.pill.is-active');
+
+          if (!a || !b) { path.setAttribute('d', ''); return; }
+
+          const fr = filtersEl.getBoundingClientRect();
+          const p1 = centerOf(a);
+          const p2 = centerOf(b);
+
+          const x1 = ((p1.x - fr.left) / fr.width) * 100;
+          const y1 = ((p1.y - fr.top) / fr.height) * 100;
+          const x2 = ((p2.x - fr.left) / fr.width) * 100;
+          const y2 = ((p2.y - fr.top) / fr.height) * 100;
+
+          // Curva “a mano” simile screenshot
+          const midY = (y1 + y2) / 2;
+          const d = `M ${x1} ${y1}
+                     C ${x1} ${midY - 8},
+                       ${x2} ${midY + 8},
+                       ${x2} ${y2}`;
+
+          path.setAttribute('d', d);
+        }
+
+        window.addEventListener('resize', drawConnector);
+        drawConnector();
+      })();
     </script>
 
   </main>
