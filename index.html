@@ -25,90 +25,36 @@
           <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
               <!--
-                SHAPE: molto simile alla tua icona.
-                - outer: bordo esterno
-                - inner: foro interno (bianco)
-                Nota: inner usato per clip del testo (così il testo riempie tutto l’interno).
+                SHAPE: usa SOLO come clip (invisibile).
+                NIENTE COLLO. NIENTE BORDO VISIBILE.
               -->
-
-              <!-- INNER (clip) -->
               <clipPath id="tshirtInnerClip" clipPathUnits="userSpaceOnUse">
                 <path id="tshirtInnerPath" d="
-                  M158 148
-                  L120 175
-                  L140 230
-                  L205 214
-                  L205 438
-                  L307 438
-                  L307 214
-                  L372 230
-                  L392 175
-                  L354 148
-                  C330 168 302 178 256 178
-                  C210 178 182 168 158 148
-                  Z
-
-                  M218 148
-                  C228 166 242 178 256 178
-                  C270 178 284 166 294 148
-                  C282 132 270 124 256 124
-                  C242 124 230 132 218 148
+                  M 140 115
+                  L 372 115
+                  L 460 195
+                  L 420 250
+                  L 350 230
+                  L 350 430
+                  L 162 430
+                  L 162 230
+                  L 92 250
+                  L 52 195
                   Z
                 "/>
               </clipPath>
             </defs>
 
-            <!-- TESTO clippato (NON coperto dal bordo) -->
+            <!-- TESTO clippato: la forma è fatta SOLO dal testo -->
             <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtInnerClip)">
               <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
                 <div id="tshirtText" class="tshirt-text"></div>
               </div>
             </foreignObject>
 
-            <!-- BORDO: “anello” (outer - inner) così NON copre il testo -->
-            <path class="tshirt-border" fill-rule="evenodd" d="
-              M140 134
-              L90 168
-              L118 252
-              L190 232
-              L190 458
-              L322 458
-              L322 232
-              L394 252
-              L422 168
-              L372 134
-              C345 158 312 170 256 170
-              C200 170 167 158 140 134
-              Z
-
-              M206 134
-              C220 164 238 170 256 170
-              C274 170 292 164 306 134
-              C292 110 274 100 256 100
-              C238 100 220 110 206 134
-              Z
-
-              M158 148
-              L120 175
-              L140 230
-              L205 214
-              L205 438
-              L307 438
-              L307 214
-              L372 230
-              L392 175
-              L354 148
-              C330 168 302 178 256 178
-              C210 178 182 168 158 148
-              Z
-
-              M218 148
-              C228 166 242 178 256 178
-              C270 178 284 166 294 148
-              C282 132 270 124 256 124
-              C242 124 230 132 218 148
-              Z
-            "/>
+            <!-- IMPORTANTISSIMO:
+                 NESSUN PATH DI BORDO QUI.
+                 La sagoma NON deve vedersi. -->
           </svg>
         </div>
 
@@ -233,9 +179,7 @@
         size += 0.5;
       }
 
-      // fase B: micro aggiustamento verso l’alto se rimane aria sopra
-      // (il testo deve partire "un pelo sotto" il collo, non 2cm sotto)
-      // qui non spostiamo il testo dentro il bordo: è già clippato.
+      // fase B: (rimossa: ora gestiamo la posizione da CSS con margin-top)
     }
 
     // 3) filtri base
