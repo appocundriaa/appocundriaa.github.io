@@ -4,7 +4,7 @@
   --muted: #3a3a3a;
   --pill-border: rgba(0,0,0,.35);
 
-  --bio-d: 460px;
+  --bio-d: 420px;
 }
 
 *{ box-sizing: border-box; }
@@ -16,7 +16,7 @@ body{
   color: var(--text);
 }
 
-/* screen reader only */
+/* Utility: testo solo per screen reader */
 .sr-only{
   position:absolute!important;
   width:1px!important;
@@ -29,7 +29,7 @@ body{
   border:0!important;
 }
 
-/* Header layout */
+/* Header */
 .header{ padding: 22px 0 0; }
 
 .header-grid{
@@ -44,7 +44,7 @@ body{
   padding: 0 10px;
 }
 
-/* BIO circle */
+/* Bio circle */
 .bio-circle{
   width: var(--bio-d);
   max-width: min(var(--bio-d), 92vw);
@@ -52,6 +52,7 @@ body{
   display: grid;
   place-items: center;
   margin-top: 8px;
+  margin-bottom: 6px; /* riduce il “buco” prima dei contatti */
 }
 
 .bio-circle__lines{
@@ -62,20 +63,20 @@ body{
   justify-content: center;
 }
 
-/* font/line-height sono controllati dal JS via CSS variables */
+/* controllati da JS via var */
 .bio-line{
   font-weight: 600;
-  font-size: var(--bio-fs, 13.5px);
-  line-height: var(--bio-lh, 15.5px);
+  font-size: var(--bio-fs, 13px);
+  line-height: var(--bio-lh, 15px);
   letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
 }
 
-/* Contacts */
+/* Contatti */
 .contact-wrapper{
-  margin-top: 14px;
+  margin-top: 10px;
   text-align: center;
 }
 
@@ -100,10 +101,9 @@ body{
   text-underline-offset: 2px;
 }
 .link:hover{ opacity: .85; }
-
 .sep{ color: var(--muted); }
 
-/* Filters */
+/* Filtri */
 .filters{
   margin-top: 18px;
   width: 100%;
@@ -117,8 +117,8 @@ body{
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 34px;              /* PIÙ spazio tra category e subcategory */
-  padding: 6px 0 2px;
+  gap: 32px; /* più aria tra category e tag */
+  padding: 6px 0 0;
 }
 
 .filter-group{
@@ -128,7 +128,6 @@ body{
   justify-content: center;
 }
 
-/* Buttons */
 .pill{
   appearance: none;
   background: transparent;
@@ -147,7 +146,7 @@ body{
   border-color: #000;
 }
 
-/* Connector */
+/* freccia overlay */
 .filter-connector{
   position: absolute;
   inset: 0;
@@ -166,11 +165,11 @@ body{
 
 /* Main */
 .page-content{
-  margin-top: 50px;
+  margin-top: 42px;
   padding-bottom: 40px;
 }
 
-/* Work list: years left, titles centered */
+/* Work grid: anni a sinistra, titoli centrati */
 .work-grid{
   width: 100%;
   display: grid;
@@ -206,9 +205,6 @@ body{
   font-weight: 500;
 }
 
-.work-spacer{}
-
-/* Footer */
 .footer{
   margin-top: 28px;
   font-size: 12px;
@@ -218,7 +214,7 @@ body{
 
 /* Responsive */
 @media (max-width: 520px){
-  :root{ --bio-d: 380px; }
+  :root{ --bio-d: 360px; }
 
   .work-row{
     grid-template-columns: 90px 1fr 0px;
