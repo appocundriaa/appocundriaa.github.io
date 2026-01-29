@@ -20,94 +20,95 @@
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- T-SHIRT CLIP (robusto) -->
+        <!-- T-SHIRT -->
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
           <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
               <!--
-                CLIP: forma t-shirt "outline" come la tua (maniche inclinate + gradino + collo tondo).
-                Nota: NON disegniamo il bordo sopra al testo, così il testo non viene mai coperto.
+                SHAPE: molto simile alla tua icona.
+                - outer: bordo esterno
+                - inner: foro interno (bianco)
+                Nota: inner usato per clip del testo (così il testo riempie tutto l’interno).
               -->
-              <clipPath id="tshirtClip" clipPathUnits="userSpaceOnUse">
-                <path d="
-                  M 256 78
-                  C 218 78 198 90 182 112
-                  L 86 150
-                  L 116 256
-                  L 188 236
-                  L 188 456
-                  L 324 456
-                  L 324 236
-                  L 396 256
-                  L 426 150
-                  L 330 112
-                  C 314 90 294 78 256 78
+
+              <!-- INNER (clip) -->
+              <clipPath id="tshirtInnerClip" clipPathUnits="userSpaceOnUse">
+                <path id="tshirtInnerPath" d="
+                  M158 148
+                  L120 175
+                  L140 230
+                  L205 214
+                  L205 438
+                  L307 438
+                  L307 214
+                  L372 230
+                  L392 175
+                  L354 148
+                  C330 168 302 178 256 178
+                  C210 178 182 168 158 148
+                  Z
+
+                  M218 148
+                  C228 166 242 178 256 178
+                  C270 178 284 166 294 148
+                  C282 132 270 124 256 124
+                  C242 124 230 132 218 148
                   Z
                 "/>
               </clipPath>
-
-              <!-- “buco” del collo: togliamo testo dove sarebbe il buco interno -->
-              <mask id="tshirtMask">
-                <rect x="0" y="0" width="512" height="512" fill="#fff"/>
-                <!-- foro collo -->
-                <path d="
-                  M 256 88
-                  C 232 88 214 98 202 116
-                  C 216 142 235 156 256 156
-                  C 277 156 296 142 310 116
-                  C 298 98 280 88 256 88
-                  Z
-                " fill="#000"/>
-              </mask>
             </defs>
 
-            <!--
-              Il testo è CLIPPATO dalla maglietta e in più MASCHERATO dal “buco del collo”.
-              Così parte subito “a filo” ma non invade il buco.
-            -->
-            <g clip-path="url(#tshirtClip)" mask="url(#tshirtMask)">
-              <foreignObject x="0" y="0" width="512" height="512">
-                <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
-                  <div id="tshirtText" class="tshirt-text"></div>
-                </div>
-              </foreignObject>
-            </g>
+            <!-- TESTO clippato (NON coperto dal bordo) -->
+            <foreignObject x="0" y="0" width="512" height="512" clip-path="url(#tshirtInnerClip)">
+              <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
+                <div id="tshirtText" class="tshirt-text"></div>
+              </div>
+            </foreignObject>
 
-            <!-- opzionale: ombra “grigia” tipo icona (MA dietro al testo, non sopra) -->
-            <path class="tshirt-shadow"
-              d="M 256 78
-                 C 218 78 198 90 182 112
-                 L 86 150
-                 L 116 256
-                 L 188 236
-                 L 188 456
-                 L 324 456
-                 L 324 236
-                 L 396 256
-                 L 426 150
-                 L 330 112
-                 C 314 90 294 78 256 78
-                 Z"
-            />
+            <!-- BORDO: “anello” (outer - inner) così NON copre il testo -->
+            <path class="tshirt-border" fill-rule="evenodd" d="
+              M140 134
+              L90 168
+              L118 252
+              L190 232
+              L190 458
+              L322 458
+              L322 232
+              L394 252
+              L422 168
+              L372 134
+              C345 158 312 170 256 170
+              C200 170 167 158 140 134
+              Z
 
-            <!-- opzionale: bordo nero (se lo vuoi visibile)
-                 IMPORTANTE: se lo attivi, coprirà un po’ il testo. Per ora è spento via CSS. -->
-            <path class="tshirt-outline"
-              d="M 256 78
-                 C 218 78 198 90 182 112
-                 L 86 150
-                 L 116 256
-                 L 188 236
-                 L 188 456
-                 L 324 456
-                 L 324 236
-                 L 396 256
-                 L 426 150
-                 L 330 112
-                 C 314 90 294 78 256 78
-                 Z"
-            />
+              M206 134
+              C220 164 238 170 256 170
+              C274 170 292 164 306 134
+              C292 110 274 100 256 100
+              C238 100 220 110 206 134
+              Z
 
+              M158 148
+              L120 175
+              L140 230
+              L205 214
+              L205 438
+              L307 438
+              L307 214
+              L372 230
+              L392 175
+              L354 148
+              C330 168 302 178 256 178
+              C210 178 182 168 158 148
+              Z
+
+              M218 148
+              C228 166 242 178 256 178
+              C270 178 284 166 294 148
+              C282 132 270 124 256 124
+              C242 124 230 132 218 148
+              Z
+            "/>
           </svg>
         </div>
 
@@ -129,7 +130,7 @@
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
-            <!-- UNO SOLO scarabocchio -->
+            <!-- UN SOLO scarabocchio -->
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <path id="scribble" d="" fill="none"></path>
             </svg>
@@ -196,42 +197,48 @@
   </main>
 
   <script>
-    // 1) monta testo nel foreignObject
+    // 1) monta testo
     function mountTshirtText() {
       const src = document.getElementById('bioSource');
       const target = document.getElementById('tshirtText');
       if (!src || !target) return;
-      // normalizzo spazi, ma NON cambio parole
+
+      // NON cambia contenuto, solo normalizza spazi per wrapping stabile
       target.textContent = src.textContent.trim().replace(/\s+/g, ' ');
     }
 
-    // 2) FIT: vogliamo che il testo copra TUTTO l’interno.
-    //    Strategia: parti da grande e riduci finché non "overflowa" nel box.
-    //    In più: forziamo word-break per riempire bene.
-    function fitTshirtText() {
+    // 2) fit: vogliamo che il testo RIEMPIA l’interno e parta dall’alto
+    function fitTshirtTextFill() {
       const fo = document.querySelector('.tshirt-fo');
       const t = document.getElementById('tshirtText');
       if (!fo || !t) return;
 
+      // reset
+      t.style.fontSize = '10px';
+
       const maxH = fo.clientHeight;
       const maxW = fo.clientWidth;
 
-      // parto più grande
-      let size = 22;
-      t.style.fontSize = size + 'px';
-
-      // riduco finché tutto rientra nel box
-      for (let i = 0; i < 80; i++) {
+      // fase A: cresce finché sta dentro (massimizza font size)
+      let size = 10;
+      for (let i = 0; i < 120; i++) {
+        t.style.fontSize = size + 'px';
         const tooTall = t.scrollHeight > maxH;
         const tooWide = t.scrollWidth > maxW;
-        if (!tooTall && !tooWide) break;
-        size -= 0.5;
-        t.style.fontSize = size + 'px';
-        if (size <= 10) break;
+        if (tooTall || tooWide) {
+          size -= 0.5;
+          t.style.fontSize = size + 'px';
+          break;
+        }
+        size += 0.5;
       }
+
+      // fase B: micro aggiustamento verso l’alto se rimane aria sopra
+      // (il testo deve partire "un pelo sotto" il collo, non 2cm sotto)
+      // qui non spostiamo il testo dentro il bordo: è già clippato.
     }
 
-    // 3) filtri + lista
+    // 3) filtri base
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
@@ -266,14 +273,13 @@
 
       bind(categoryGroup, 'category');
       bind(tagGroup, 'tag');
-
       setActive(categoryGroup, state.category);
       setActive(tagGroup, state.tag);
       updateList();
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // 4) UNO scarabocchio “hand drawn”
+    // 4) scarabocchio singolo (hand drawn)
     function seededRand(seedStr) {
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
@@ -290,12 +296,12 @@
       const stackEl = document.getElementById('filterStack');
       const categoryGroup = document.getElementById('categoryGroup');
       const tagGroup = document.getElementById('tagGroup');
-      const path = document.getElementById('scribble');
-      if (!stackEl || !categoryGroup || !tagGroup || !path) return;
+      const s = document.getElementById('scribble');
+      if (!stackEl || !categoryGroup || !tagGroup || !s) return;
 
       const a = categoryGroup.querySelector('.pill.is-active');
       const b = tagGroup.querySelector('.pill.is-active');
-      if (!a || !b) { path.setAttribute('d',''); return; }
+      if (!a || !b) { s.setAttribute('d',''); return; }
 
       const fr = stackEl.getBoundingClientRect();
       const ra = a.getBoundingClientRect();
@@ -308,11 +314,11 @@
 
       const r = seededRand(seedKey);
 
-      // curva base
+      // curva base + jitter “scarabocchio”
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 + (y2 - y1) * 0.20 - 8;
+      const cy1 = y1 - 10 + (r()-0.5)*6;
       const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y1 + (y2 - y1) * 0.80 + 8;
+      const cy2 = y2 + 10 + (r()-0.5)*6;
 
       function bezier(t){
         const mt = 1 - t;
@@ -322,37 +328,36 @@
       }
 
       const pts = [];
-      const steps = 16;
+      const steps = 22;
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const p = bezier(t);
-
-        const amp = Math.sin(Math.PI * t) * 2.4; // wobble
-        const jx = (r() - 0.5) * amp * 2.2;
-        const jy = (r() - 0.5) * amp * 2.8;
-        pts.push({ x: p.x + jx, y: p.y + jy });
+        const amp = Math.sin(Math.PI * t) * 2.2; // jitter più a metà
+        pts.push({
+          x: p.x + (r()-0.5)*amp*2.4,
+          y: p.y + (r()-0.5)*amp*3.0
+        });
       }
 
       let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
       for (let i = 1; i < pts.length - 1; i++) {
-        const cpx = pts[i].x;
-        const cpy = pts[i].y;
+        const cpx = pts[i].x, cpy = pts[i].y;
         const nx = (pts[i].x + pts[i+1].x) / 2;
         const ny = (pts[i].y + pts[i+1].y) / 2;
         d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
       }
       d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
 
-      path.setAttribute('d', d);
+      s.setAttribute('d', d);
     }
 
     (function init(){
       mountTshirtText();
       setupFilters();
-      fitTshirtText();
+      fitTshirtTextFill();
 
       window.addEventListener('resize', () => {
-        fitTshirtText();
+        fitTshirtTextFill();
         const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
         const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
         drawScribble(c + '|' + t);
