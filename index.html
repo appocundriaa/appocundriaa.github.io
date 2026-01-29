@@ -24,20 +24,24 @@
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
           <svg class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
-              <!-- Clip: maglietta senza collo (spalle inclinate + maniche come disegno) -->
+              <!-- Clip: maglietta senza collo, come il tuo disegno (spalle larghe, maniche inclinate, torso dritto) -->
               <clipPath id="tshirtClip" clipPathUnits="userSpaceOnUse">
-                <!-- forma più "larga" e meno striminzita -->
+                <!-- Sagoma più simile al foglio: top piatto, maniche inclinate, sotto-ascella, corpo rettangolare -->
                 <path d="
-                  M110 150
-                  L210 115
-                  L302 115
-                  L402 150
-                  L378 245
-                  L318 225
-                  L318 458
-                  L194 458
-                  L194 225
-                  L134 245
+                  M 126 140
+                  L 210 112
+                  L 302 112
+                  L 386 140
+
+                  L 412 210
+                  L 360 244
+                  L 332 226
+
+                  L 332 460
+                  L 180 460
+                  L 180 226
+                  L 152 244
+                  L 100 210
                   Z
                 " />
               </clipPath>
@@ -152,21 +156,17 @@
     }
 
     // PROFILO maglietta (0..1 -> larghezza relativa 0..1)
-    // tarato per combaciare con il clipPath qui sopra
+    // tarato per la clipPath sopra: spalle larghissime, maniche, poi torso dritto.
     function tshirtProfile(t){
-      // spalle molto larghe
-      if (t < 0.10) return 0.94;
-      // maniche (ancora larghe)
-      if (t < 0.22) return 0.90;
-      // sotto ascella stringe
-      if (t < 0.34) return 0.76;
-      // torso quasi costante
-      if (t < 0.86) return 0.74;
-      // fondo leggermente più largo
-      return 0.78;
+      // t = 0 top -> 1 bottom
+      if (t < 0.12) return 0.96; // top: larghissimo (spalle)
+      if (t < 0.26) return 0.92; // maniche ancora larghe
+      if (t < 0.36) return 0.82; // sotto ascella stringe
+      if (t < 0.92) return 0.80; // torso quasi costante
+      return 0.82;               // fondo leggermente più largo
     }
 
-    // layout a righe: spezza anche a metà parola (char-by-char)
+    // layout a righe: spezza anche a metà parola (char-by-char), senza perdere testo
     function layoutTshirtText(){
       const fo = document.querySelector('.tshirt-fo');
       const host = document.getElementById('tshirtText');
@@ -176,21 +176,36 @@
       host.innerHTML = '';
       if (!text) return;
 
+      // IMPORTANTISSIMO: niente tagli interni (se nel CSS c'è overflow hidden lo neutralizziamo qui)
+      host.style.overflow = 'visible';
+      host.style.whiteSpace = 'normal';
+      host.style.wordBreak = 'normal';
+      host.style.hyphens = 'none';
+      host.style.display = 'flex';
+      host.style.flexDirection = 'column';
+      host.style.alignItems = 'center';
+      host.style.justifyContent = 'flex-start';
+      host.style.width = '100%';
+
       const W = fo.clientWidth;
       const H = fo.clientHeight;
 
-      // zona utile: così il testo parte davvero in alto “dentro” la forma
-      const topInset = Math.round(H * 0.03);
-      const bottomInset = Math.round(H * 0.04);
+      // inset verticali piccoli (parti su, ma non incolli al bordo)
+      const topInset = Math.round(H * 0.025);
+      const bottomInset = Math.round(H * 0.03);
       const usableH = Math.max(1, H - topInset - bottomInset);
 
       const lineHeightRatio = 1.12;
+
+      // GUTTER: margine di sicurezza per evitare che le lettere vengano “morsicate” dal clip
+      const gutterPx = Math.max(10, Math.round(W * 0.02)); // ~2% width, min 10px
+      const profileSafety = 0.94; // ulteriore safety sul profilo
 
       function tryFit(size){
         const lineH = size * lineHeightRatio;
         const maxLines = Math.max(1, Math.floor(usableH / lineH));
 
-        // IMPORTANTISSIMO: includo anche il peso nel font usato dal canvas
+        // includo il peso nel font usato dal canvas (coerente con CSS)
         const font = `600 ${size}px KeroinePRO, "General Sans", Arial, sans-serif`;
         const measure = makeMeasure(font);
 
@@ -198,13 +213,14 @@
         const lines = [];
 
         for (let i = 0; i < maxLines && idx < text.length; i++){
-          const t = i / Math.max(1, (maxLines - 1));
-          const maxW = W * tshirtProfile(t);
+          const tt = i / Math.max(1, (maxLines - 1));
+          const maxW = Math.max(1, (W * tshirtProfile(tt) * profileSafety) - gutterPx);
 
           let chunk = '';
           let lastGood = '';
           let lastGoodIdx = idx;
 
+          // riempi char-by-char finché ci sta
           while (idx < text.length){
             const next = chunk + text[idx];
             if (measure(next) <= maxW){
@@ -224,7 +240,7 @@
             idx = lastGoodIdx;
           }
 
-          // tolgo solo gli spazi a inizio riga (senza cambiare il contenuto)
+          // tolgo solo spazi a inizio riga (non tocco il contenuto globale)
           lines.push(lastGood.replace(/^\s+/, ''));
           idx = lastGoodIdx;
         }
@@ -232,9 +248,9 @@
         return { finished: idx >= text.length, lines, lineH };
       }
 
-      // scelgo il font più grande che riesce a contenere TUTTO il testo
+      // prendo il font più grande che riesce a mettere TUTTO il testo
       const maxFont = 44;
-      const minFont = 10;
+      const minFont = 9; // scendo un pelo di più per non perdere mai testo
       let best = null;
 
       for (let s = maxFont; s >= minFont; s -= 0.5){
@@ -245,7 +261,7 @@
         }
       }
 
-      // se davvero non entra, almeno non “perdiamo testo”: riduciamo al minimo e mostriamo comunque il massimo possibile
+      // se non entra comunque, riduco al minimo (ma NON “sparisco” testo: lo mostro il più possibile)
       if (!best){
         const res = tryFit(minFont);
         best = { fontSize: minFont, ...res };
@@ -256,15 +272,19 @@
       host.style.paddingTop = topInset + 'px';
       host.style.paddingBottom = bottomInset + 'px';
 
-      // render righe con larghezza variabile
+      // render righe a larghezza variabile (coerente col profilo + gutter)
       const n = best.lines.length;
       for (let i = 0; i < n; i++){
-        const t = i / Math.max(1, (n - 1));
-        const lineW = Math.round(W * tshirtProfile(t));
+        const tt = i / Math.max(1, (n - 1));
+        const lineW = Math.max(1, Math.round((W * tshirtProfile(tt) * profileSafety) - gutterPx));
 
         const div = document.createElement('div');
         div.className = 'tline';
         div.style.width = lineW + 'px';
+        div.style.textAlign = 'center';
+        div.style.whiteSpace = 'nowrap';
+        div.style.overflow = 'visible';
+        div.style.margin = '0 auto';
         div.textContent = best.lines[i];
         host.appendChild(div);
       }
