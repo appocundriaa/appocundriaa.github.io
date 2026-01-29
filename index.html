@@ -41,16 +41,8 @@
               </clipPath>
             </defs>
 
-            <!-- ✅ FOREIGNOBJECT NELLA FASCIA VERTICALE GIUSTA -->
-            <foreignObject
-              x="0" y="115"
-              width="512" height="315"
-              clip-path="url(#tshirtInnerClip)"
-            >
-              <div xmlns="http://www.w3.org/1999/xhtml" class="tshirt-fo">
-                <div id="tshirtText" class="tshirt-text"></div>
-              </div>
-            </foreignObject>
+            <!-- ✅ TESTO SVG (NO foreignObject) clippato nella maglietta -->
+            <g id="tshirtTextGroup" clip-path="url(#tshirtInnerClip)"></g>
           </svg>
         </div>
 
@@ -72,6 +64,7 @@
         <section class="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
+            <!-- UN SOLO scarabocchio -->
             <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
               <path id="scribble" d="" fill="none"></path>
             </svg>
@@ -138,7 +131,7 @@
   </main>
 
   <script>
-    // ======== TESTO T-SHIRT ========
+    // ======== TESTO T-SHIRT: SVG TEXT (robusto, niente "lettere in colonna") ========
 
     function getBioText(){
       const src = document.getElementById('bioSource');
@@ -152,6 +145,7 @@
       return (str) => ctx.measureText(str).width;
     }
 
+    // stessa sagoma del clip
     const CLIP_POLY = [
       {x:140, y:115},
       {x:372, y:115},
@@ -165,9 +159,9 @@
       {x: 52, y:195}
     ];
 
-    const CLIP_MIN_Y = 115;
-    const CLIP_MAX_Y = 430;
-    const CLIP_H = CLIP_MAX_Y - CLIP_MIN_Y; // 315
+    const MIN_Y = 115;
+    const MAX_Y = 430;
+    const CLIP_H = MAX_Y - MIN_Y;
 
     function segIntersectX(p1, p2, y){
       const y1 = p1.y, y2 = p2.y;
@@ -179,8 +173,8 @@
       return p1.x + t * (p2.x - p1.x);
     }
 
-    // Se ci sono 4 intersezioni (maniche), scegliamo il "busto": xs[1]..xs[2]
-    function widthAtSvgY(y){
+    // Se ci sono 4 intersezioni (maniche), prendiamo la CAMPATA PIÙ LARGA (non la più stretta)
+    function widthAtY(y){
       const xs = [];
       for (let i = 0; i < CLIP_POLY.length; i++){
         const a = CLIP_POLY[i];
@@ -190,62 +184,64 @@
       }
       if (xs.length < 2) return 0;
       xs.sort((m,n) => m - n);
-      if (xs.length >= 4) return xs[2] - xs[1];
-      return xs[1] - xs[0];
+
+      // genera segmenti [x0-x1], [x2-x3], ...
+      let best = 0;
+      for (let i = 0; i + 1 < xs.length; i += 2){
+        best = Math.max(best, xs[i+1] - xs[i]);
+      }
+      return best;
     }
 
-    function layoutTshirtText(){
-      const fo = document.querySelector('.tshirt-fo');
-      const host = document.getElementById('tshirtText');
-      if (!fo || !host) return;
+    function layoutTshirtTextSVG(){
+      const svg = document.getElementById('tshirtSvg');
+      const g = document.getElementById('tshirtTextGroup');
+      if (!svg || !g) return;
 
       const text = getBioText();
-      host.innerHTML = '';
+      while (g.firstChild) g.removeChild(g.firstChild);
       if (!text) return;
 
-      const W = fo.clientWidth;
-      const H = fo.clientHeight; // ✅ ora è 315 scalato, non 512
+      // scala: 512 user units, ma la misura canvas è in px.
+      // Usiamo un bridge semplice: misuriamo in px e convertiamo usando la larghezza reale del render.
+      const svgRect = svg.getBoundingClientRect();
+      const pxPerSvg = svgRect.width / 512;
 
-      const weight = 600;
       const family = 'KeroinePRO, "General Sans", Arial, sans-serif';
+      const weight = 600;
       const lineHeightRatio = 1.10;
 
-      // sicurezza per evitare glyph clippati
-      const SAFE = 0.93;
+      const TOP = 6;     // padding in SVG units
+      const BOTTOM = 6;  // padding in SVG units
+      const SAFE = 0.94; // sicurezza per non "toccare" il clip
 
-      // padding interno minimo
-      const topPad = Math.round(H * 0.02);
-      const botPad = Math.round(H * 0.02);
-
-      function tryFit(fontSize){
-        const lineH = fontSize * lineHeightRatio;
-        const usableH = Math.max(1, H - topPad - botPad);
+      function tryFit(size){
+        const lineH = size * lineHeightRatio;
+        const usableH = Math.max(1, CLIP_H - TOP - BOTTOM);
         const maxLines = Math.max(1, Math.floor(usableH / lineH));
 
-        const font = `${weight} ${fontSize}px ${family}`;
+        const font = `${weight} ${size}px ${family}`;
         const measure = makeMeasure(font);
 
         let idx = 0;
         const lines = [];
 
         for (let i = 0; i < maxLines && idx < text.length; i++){
-          const yPx = topPad + i * lineH + lineH * 0.55;
+          const y = MIN_Y + TOP + i * lineH; // y in SVG units (top line)
+          const yMid = y + lineH * 0.55;
 
-          // mappa yPx (0..H) dentro la fascia clip (115..430)
-          const t = yPx / Math.max(1, H);
-          let ySvg = CLIP_MIN_Y + t * CLIP_H;
-
-          // epsilon per non cadere esattamente sui bordi
+          // epsilon per non cadere esattamente sui vertici
           const eps = 0.001;
-          ySvg = Math.max(CLIP_MIN_Y + eps, Math.min(CLIP_MAX_Y - eps, ySvg));
+          const yClamped = Math.max(MIN_Y + eps, Math.min(MAX_Y - eps, yMid));
 
-          const wSvg = widthAtSvgY(ySvg) * SAFE;
-          const maxWpx = Math.max(12, (wSvg / 512) * W);
+          const wSvg = widthAtY(yClamped) * SAFE;
+          const maxWpx = Math.max(8, wSvg * pxPerSvg);
 
           let chunk = '';
           let lastGood = '';
           let lastGoodIdx = idx;
 
+          // wrap char-by-char (così non "perdi" testo)
           while (idx < text.length){
             const next = chunk + text[idx];
             if (measure(next) <= maxWpx){
@@ -253,9 +249,7 @@
               lastGood = chunk;
               lastGoodIdx = idx + 1;
               idx++;
-            } else {
-              break;
-            }
+            } else break;
           }
 
           if (!lastGood){
@@ -264,11 +258,14 @@
             idx = lastGoodIdx;
           }
 
-          lines.push({ text: lastGood.replace(/^\s+/, ''), w: Math.round(maxWpx) });
+          lines.push({
+            y,
+            text: lastGood.replace(/^\s+/, '')
+          });
           idx = lastGoodIdx;
         }
 
-        return { finished: idx >= text.length, lines };
+        return { finished: idx >= text.length, lines, lineH };
       }
 
       // font più grande che fa entrare tutto
@@ -287,18 +284,19 @@
         best = { fontSize: MIN, ...tryFit(MIN) };
       }
 
-      host.style.fontSize = best.fontSize + 'px';
-      host.style.fontWeight = String(weight);
-      host.style.lineHeight = String(lineHeightRatio);
-      host.style.paddingTop = topPad + 'px';
-      host.style.paddingBottom = botPad + 'px';
-
+      // Render: un <text> per riga, centrato a x=256
       for (const line of best.lines){
-        const div = document.createElement('div');
-        div.className = 'tline';
-        div.style.width = line.w + 'px';
-        div.textContent = line.text;
-        host.appendChild(div);
+        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        t.setAttribute('x', '256');
+        t.setAttribute('y', String(line.y));
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('dominant-baseline', 'hanging');
+        t.setAttribute('font-family', family);
+        t.setAttribute('font-weight', String(weight));
+        t.setAttribute('font-size', String(best.fontSize));
+        t.setAttribute('fill', '#0b0b0b'); // uguale al tuo --text
+        t.textContent = line.text;
+        g.appendChild(t);
       }
     }
 
@@ -418,7 +416,7 @@
     (function init(){
       setupFilters();
 
-      const run = () => layoutTshirtText();
+      const run = () => layoutTshirtTextSVG();
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(run);
       } else {
@@ -426,7 +424,7 @@
       }
 
       window.addEventListener('resize', () => {
-        layoutTshirtText();
+        layoutTshirtTextSVG();
         const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
         const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
         drawScribble(c + '|' + t);
