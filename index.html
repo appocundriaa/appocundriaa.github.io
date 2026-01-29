@@ -2,23 +2,165 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <title>Marco Marino – Il Re dei Cusarielli</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marco Marino</title>
 
-  <!-- General Sans Font -->
+  <!-- General Sans -->
   <link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
 
-  <main class="hero">
-    <h1 class="main-name">Marco Marino</h1>
-    <h2 class="subtitle">Il Re dei Cusarielli</h2>
+<body class="default">
+
+  <header class="header">
+    <div class="header-grid">
+      <div class="spacer"></div>
+
+      <div class="header-content">
+
+        <!-- TESTO SORGENTE PER IL CERCHIO (NON VISIBILE) -->
+        <p id="bioSource" class="sr-only">
+È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
+        </p>
+
+        <!-- CERCHIO TESTO -->
+        <div class="bio-circle">
+          <div id="bioCircleLines" class="bio-circle__lines"></div>
+        </div>
+
+        <!-- CONTATTI -->
+        <div class="contact-wrapper">
+          <p class="role">Editor, writer, historian &amp;c.</p>
+          <div class="contact-link-wrapper">
+            <a class="link" href="mailto:ciao@marcomarino.cc">ciao@marcomarino.cc</a>
+            <span class="sep">|</span>
+            <a class="link" href="#" target="_blank">@marcomarino ↗</a>
+            <span class="sep">|</span>
+            <a class="link" href="#" target="_blank">substack.com ↗</a>
+          </div>
+        </div>
+
+        <!-- FILTRI -->
+        <section class="filters">
+          <div class="filter-row">
+            <div class="filter-group" data-filter-group="category">
+              <button class="pill is-active" data-filter="all">All</button>
+              <button class="pill" data-filter="Essay">Essay</button>
+              <button class="pill" data-filter="Speaking">Speaking</button>
+              <button class="pill" data-filter="Editing">Editing</button>
+              <button class="pill" data-filter="Journalism">Journalism</button>
+            </div>
+
+            <div class="filter-group" data-filter-group="tag">
+              <button class="pill is-active" data-filter="all">All</button>
+              <button class="pill" data-filter="Fashion">Fashion</button>
+              <button class="pill" data-filter="Art">Art</button>
+              <button class="pill" data-filter="Culture">Culture</button>
+              <button class="pill" data-filter="Design">Design</button>
+              <button class="pill" data-filter="History">History</button>
+            </div>
+          </div>
+        </section>
+
+      </div>
+      <div class="spacer"></div>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <div class="content-grid">
+      <section class="work-list">
+
+        <article class="work-item" data-category="Journalism" data-tags="Fashion,Design">
+          <p class="date">2025</p>
+          <a class="work-link" href="#"><p class="title">Behind the Campaign</p><span class="arrow">↗</span></a>
+        </article>
+
+        <article class="work-item" data-category="Essay" data-tags="History,Fashion">
+          <p class="date">2025</p>
+          <a class="work-link" href="#"><p class="title">Revolutionaries Hiding in Plain Sight</p><span class="arrow">↗</span></a>
+        </article>
+
+        <article class="work-item" data-category="Speaking" data-tags="Culture,Art">
+          <p class="date">2024</p>
+          <a class="work-link" href="#"><p class="title">Reading @ ICA London</p><span class="arrow">↗</span></a>
+        </article>
+
+      </section>
+
+      <footer class="footer">
+        <p>© 2026 – Marco Marino</p>
+      </footer>
+    </div>
+
+    <!-- JS: CERCHIO + FILTRI -->
+    <script>
+    (function renderBioCircle() {
+      const text = document.getElementById('bioSource').textContent.trim().replace(/\s+/g,' ');
+      const out = document.getElementById('bioCircleLines');
+      const diameter = 520;
+      const lineHeight = 34;
+      const padding = 12;
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      ctx.font = '600 32px "General Sans", Arial';
+
+      const words = text.split(' ');
+      const r = (diameter/2)-padding;
+      const linesCount = Math.floor((2*r)/lineHeight);
+      const yStart = -r + (lineHeight/2);
+
+      const maxWidthAtY = y => 2*Math.sqrt(Math.max(0,(r*r)-(y*y)));
+
+      let idx=0;
+      out.innerHTML='';
+
+      for(let i=0;i<linesCount;i++){
+        const y = yStart + i*lineHeight;
+        const maxW = maxWidthAtY(y);
+
+        let line='', w=0;
+        while(idx<words.length){
+          const test=line?line+' '+words[idx]:words[idx];
+          const tw=ctx.measureText(test).width;
+          if(tw<=maxW){line=test;w=tw;idx++} else break;
+        }
+
+        const div=document.createElement('div');
+        div.className='bio-line';
+        div.style.width=maxW+'px';
+        div.textContent=line||'';
+        out.appendChild(div);
+      }
+    })();
+
+    (function filters(){
+      const state={category:'all',tag:'all'};
+      const norm=t=>t.split(',').map(x=>x.trim());
+      const update=()=>{
+        document.querySelectorAll('.work-item').forEach(it=>{
+          const c=it.dataset.category;
+          const tags=norm(it.dataset.tags||'');
+          const okC=state.category==='all'||c===state.category;
+          const okT=state.tag==='all'||tags.includes(state.tag);
+          it.style.display=(okC&&okT)?'':'none';
+        });
+      };
+      document.querySelectorAll('.filter-group').forEach(g=>{
+        g.addEventListener('click',e=>{
+          const b=e.target.closest('button'); if(!b)return;
+          const grp=g.dataset.filterGroup;
+          state[grp]=b.dataset.filter;
+          g.querySelectorAll('.pill').forEach(p=>p.classList.remove('is-active'));
+          b.classList.add('is-active');
+          update();
+        });
+      });
+      update();
+    })();
+    </script>
+
   </main>
-
-  <footer>
-    <p>© 2026 – Marco Marino</p>
-  </footer>
-
 </body>
 </html>
