@@ -24,19 +24,20 @@
         <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
           <svg class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
             <defs>
-              <!-- Clip: maglietta senza collo, simile al tuo disegno (spalle inclinate + maniche) -->
+              <!-- Clip: maglietta senza collo (spalle inclinate + maniche come disegno) -->
               <clipPath id="tshirtClip" clipPathUnits="userSpaceOnUse">
+                <!-- forma più "larga" e meno striminzita -->
                 <path d="
-                  M120 150
-                  L185 120
-                  L327 120
-                  L392 150
-                  L360 245
-                  L312 228
-                  L312 452
-                  L200 452
-                  L200 228
-                  L152 245
+                  M110 150
+                  L210 115
+                  L302 115
+                  L402 150
+                  L378 245
+                  L318 225
+                  L318 458
+                  L194 458
+                  L194 225
+                  L134 245
                   Z
                 " />
               </clipPath>
@@ -136,65 +137,62 @@
   </main>
 
   <script>
-    // prende testo sorgente (non lo modifica, solo normalizza spazi per stabilità)
+    // testo sorgente: NON lo cambia, solo normalizza spazi per stabilità
     function getBioText(){
       const src = document.getElementById('bioSource');
       return (src?.textContent || '').trim().replace(/\s+/g, ' ');
     }
 
-    // misurazione testo con canvas per "fit" perfetto a larghezza riga
-    function measureFactory(font){
+    // canvas measure
+    function makeMeasure(font){
       const c = document.createElement('canvas');
       const ctx = c.getContext('2d');
       ctx.font = font;
       return (str) => ctx.measureText(str).width;
     }
 
-    // profilo maglietta: larghezza riga (0..1) in base a y (0..1)
-    // top largo (maniche), poi scende un po' sotto ascella, poi torso quasi costante
+    // PROFILO maglietta (0..1 -> larghezza relativa 0..1)
+    // tarato per combaciare con il clipPath qui sopra
     function tshirtProfile(t){
-      // t = 0 top -> 1 bottom
-      if (t < 0.12) return 0.92;          // spalle molto larghe
-      if (t < 0.22) return 0.86;          // maniche
-      if (t < 0.30) return 0.72;          // sotto maniche / ascella (stringe)
-      if (t < 0.78) return 0.68;          // torso
-      return 0.70;                         // leggero “appoggio” al fondo
+      // spalle molto larghe
+      if (t < 0.10) return 0.94;
+      // maniche (ancora larghe)
+      if (t < 0.22) return 0.90;
+      // sotto ascella stringe
+      if (t < 0.34) return 0.76;
+      // torso quasi costante
+      if (t < 0.86) return 0.74;
+      // fondo leggermente più largo
+      return 0.78;
     }
 
-    // costruisce righe a larghezza variabile e SPEZZA anche parole a metà
+    // layout a righe: spezza anche a metà parola (char-by-char)
     function layoutTshirtText(){
       const fo = document.querySelector('.tshirt-fo');
       const host = document.getElementById('tshirtText');
       if (!fo || !host) return;
 
       const text = getBioText();
-      if (!text) { host.textContent = ''; return; }
-
-      // reset host (render a righe)
       host.innerHTML = '';
-      host.style.marginTop = '0px';
+      if (!text) return;
 
-      // area utile dentro SVG (via CSS: .tshirt-text ha width% ecc)
-      // qui usiamo la larghezza reale del container
       const W = fo.clientWidth;
       const H = fo.clientHeight;
 
-      // impostazioni tipografiche
+      // zona utile: così il testo parte davvero in alto “dentro” la forma
+      const topInset = Math.round(H * 0.03);
+      const bottomInset = Math.round(H * 0.04);
+      const usableH = Math.max(1, H - topInset - bottomInset);
+
       const lineHeightRatio = 1.12;
 
-      // trova font-size massimo che sta in altezza con N righe
-      // (N dipende da H e dal line-height; lo stimiamo e poi aggiustiamo)
-      let fontSize = 22; // start
-      const maxFont = 42;
-      const minFont = 10;
-
-      // funzione che prova un fontSize e ritorna quante righe riesce a generare (e se “finisce il testo”)
       function tryFit(size){
         const lineH = size * lineHeightRatio;
-        const maxLines = Math.floor(H / lineH);
+        const maxLines = Math.max(1, Math.floor(usableH / lineH));
 
-        const font = `${size}px KeroinePRO, "General Sans", Arial, sans-serif`;
-        const measure = measureFactory(font);
+        // IMPORTANTISSIMO: includo anche il peso nel font usato dal canvas
+        const font = `600 ${size}px KeroinePRO, "General Sans", Arial, sans-serif`;
+        const measure = makeMeasure(font);
 
         let idx = 0;
         const lines = [];
@@ -203,17 +201,13 @@
           const t = i / Math.max(1, (maxLines - 1));
           const maxW = W * tshirtProfile(t);
 
-          // riempi questa riga char-by-char, spezzando quando superi maxW
           let chunk = '';
           let lastGood = '';
           let lastGoodIdx = idx;
 
-          // metti almeno 1 carattere, poi cresci finché ci sta
           while (idx < text.length){
             const next = chunk + text[idx];
-            const w = measure(next);
-
-            if (w <= maxW){
+            if (measure(next) <= maxW){
               chunk = next;
               lastGood = chunk;
               lastGoodIdx = idx + 1;
@@ -223,24 +217,24 @@
             }
           }
 
-          // se non è entrato nemmeno un char (riga troppo stretta), forziamo 1 char
+          // se non ci sta nemmeno 1 carattere (riga strettissima), forzo 1 char
           if (!lastGood){
             lastGood = text[idx] || '';
             lastGoodIdx = idx + 1;
             idx = lastGoodIdx;
           }
 
-          // trim SOLO spazi iniziali riga (non tocchiamo il contenuto globale)
+          // tolgo solo gli spazi a inizio riga (senza cambiare il contenuto)
           lines.push(lastGood.replace(/^\s+/, ''));
           idx = lastGoodIdx;
         }
 
-        const finished = (idx >= text.length);
-        return { lines, finished, maxLines, lineH };
+        return { finished: idx >= text.length, lines, lineH };
       }
 
-      // ricerca font size che consente di finire il testo
-      // preferiamo finire il testo anche se dobbiamo rimpicciolire
+      // scelgo il font più grande che riesce a contenere TUTTO il testo
+      const maxFont = 44;
+      const minFont = 10;
       let best = null;
 
       for (let s = maxFont; s >= minFont; s -= 0.5){
@@ -251,43 +245,32 @@
         }
       }
 
-      // se non riesce a finire (testo troppo lungo), prendiamo comunque il più grande
+      // se davvero non entra, almeno non “perdiamo testo”: riduciamo al minimo e mostriamo comunque il massimo possibile
       if (!best){
-        best = tryFit(minFont);
-        best.fontSize = minFont;
+        const res = tryFit(minFont);
+        best = { fontSize: minFont, ...res };
       }
 
-      // render
       host.style.fontSize = best.fontSize + 'px';
       host.style.lineHeight = lineHeightRatio.toString();
-      host.style.display = 'flex';
-      host.style.flexDirection = 'column';
-      host.style.alignItems = 'center';
-      host.style.justifyContent = 'flex-start';
+      host.style.paddingTop = topInset + 'px';
+      host.style.paddingBottom = bottomInset + 'px';
 
-      // leggerissimo “padding top” dentro forma (per partire subito, ma non attaccato)
-      const topPad = Math.max(0, Math.round(best.lineH * 0.25));
-      host.style.paddingTop = topPad + 'px';
-      host.style.width = '100%';
-
-      const maxLines = best.lines.length;
-
-      for (let i = 0; i < maxLines; i++){
-        const t = i / Math.max(1, (maxLines - 1));
+      // render righe con larghezza variabile
+      const n = best.lines.length;
+      for (let i = 0; i < n; i++){
+        const t = i / Math.max(1, (n - 1));
         const lineW = Math.round(W * tshirtProfile(t));
 
         const div = document.createElement('div');
         div.className = 'tline';
         div.style.width = lineW + 'px';
-        div.style.textAlign = 'center';
-        div.style.whiteSpace = 'nowrap';
         div.textContent = best.lines[i];
-
         host.appendChild(div);
       }
     }
 
-    // 3) filtri base
+    // filtri
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
       const categoryGroup = document.getElementById('categoryGroup');
@@ -328,7 +311,7 @@
       drawScribble(state.category + '|' + state.tag);
     }
 
-    // 4) scarabocchio singolo (hand drawn)
+    // scarabocchio
     function seededRand(seedStr) {
       let h = 2166136261;
       for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
@@ -364,9 +347,9 @@
       const r = seededRand(seedKey);
 
       const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 - 10 + (r()-0.5)*6;
+      const cy1 = y1 - 10 + (r()-0.5)*8;
       const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y2 + 10 + (r()-0.5)*6;
+      const cy2 = y2 + 10 + (r()-0.5)*8;
 
       function bezier(t){
         const mt = 1 - t;
@@ -376,14 +359,14 @@
       }
 
       const pts = [];
-      const steps = 22;
+      const steps = 26;
       for (let i = 0; i <= steps; i++) {
         const t = i / steps;
         const p = bezier(t);
-        const amp = Math.sin(Math.PI * t) * 2.2;
+        const amp = Math.sin(Math.PI * t) * 2.6;
         pts.push({
-          x: p.x + (r()-0.5)*amp*2.4,
-          y: p.y + (r()-0.5)*amp*3.0
+          x: p.x + (r()-0.5)*amp*3.0,
+          y: p.y + (r()-0.5)*amp*3.4
         });
       }
 
@@ -395,14 +378,13 @@
         d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
       }
       d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
-
       s.setAttribute('d', d);
     }
 
     function init(){
       setupFilters();
 
-      // aspetta un attimo che il font custom sia pronto (evita misure sbagliate)
+      // aspetta il font (misure corrette)
       const run = () => layoutTshirtText();
       if (document.fonts && document.fonts.ready) {
         document.fonts.ready.then(run);
