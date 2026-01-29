@@ -39,7 +39,7 @@ body{
 }
 
 /* Header */
-.header{ padding: 18px 0 0; }
+.header{ padding: 10px 0 0; } /* ⬅️ meno spazio sopra */
 
 .header-grid{
   display: grid;
@@ -55,9 +55,9 @@ body{
 
 /* T-SHIRT */
 .tshirt-wrap{
-  width: min(560px, 90vw);
-  margin-top: 2px;
-  margin-bottom: 10px;
+  width: min(520px, 86vw);   /* ⬅️ un pelo più piccola */
+  margin-top: 0px;           /* ⬅️ meno spazio sopra */
+  margin-bottom: 6px;        /* ⬅️ meno spazio sotto */
   display: grid;
   place-items: center;
 }
@@ -68,7 +68,7 @@ body{
   display: block;
 }
 
-/* foreignObject wrapper (rimane anche se ora non lo usi) */
+/* foreignObject wrapper (legacy) */
 .tshirt-fo{
   width: 100%;
   height: 100%;
@@ -78,14 +78,14 @@ body{
   padding: 0;
 }
 
-/* container righe (rimane anche se ora non lo usi) */
+/* legacy */
 .tshirt-text{
   width: 100%;
   text-align: center;
   letter-spacing: -0.01em;
 }
 
-/* singola riga (rimane anche se ora non lo usi) */
+/* legacy */
 .tline{
   white-space: nowrap;
   overflow: visible;
@@ -94,7 +94,7 @@ body{
 
 /* Contatti */
 .contact-wrapper{
-  margin-top: 6px;
+  margin-top: 4px; /* ⬅️ leggermente più stretto */
   text-align: center;
 }
 
@@ -137,10 +137,7 @@ body{
   position: relative;
   display: grid;
   justify-items: center;
-
-  /* ✅ PIÙ SPAZIO TRA CATEGORIE E SUBCATEGORIE */
-  gap: 52px;
-
+  gap: 52px; /* più spazio tra categorie e subcategorie */
   padding: 6px 0 0;
 }
 
@@ -189,7 +186,7 @@ body{
 
 /* Main */
 .page-content{
-  margin-top: 42px;
+  margin-top: 38px;
   padding-bottom: 40px;
 }
 
@@ -240,5 +237,5 @@ body{
 @media (max-width: 520px){
   .work-row{ grid-template-columns: 90px 1fr 0px; }
   .work-year{ padding-left: 12px; }
-  .tshirt-wrap{ width: min(520px, 92vw); }
+  .tshirt-wrap{ width: min(500px, 90vw); }
 }
