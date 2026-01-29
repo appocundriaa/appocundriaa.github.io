@@ -1,39 +1,212 @@
-body {
-  margin: 0;
-  font-family: 'General Sans', Arial, sans-serif;
-  background: #f7f7f7;
-  color: #111;
+:root{
+  --bg: #ffffff;
+  --text: #0b0b0b;
+  --muted: #3a3a3a;
+  --line: rgba(0,0,0,.20);
+  --pill-border: rgba(0,0,0,.30);
+
+  --bio-d: 520px; /* viene anche sovrascritto da JS */
 }
 
-/* HERO — Nome gigante centrato */
-.hero {
-  min-height: 85vh;
+*{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  font-family: "General Sans", Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Utility: testo solo per screen reader */
+.sr-only{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
+
+/* Header layout come riferimento (spacer ai lati) */
+.header{
+  padding: 22px 0 0;
+}
+
+.header-grid{
+  display: grid;
+  grid-template-columns: minmax(16px, 1fr) minmax(280px, 980px) minmax(16px, 1fr);
+}
+
+.header-content{
   display: flex;
   flex-direction: column;
+  align-items: center;
+  padding: 0 10px;
+}
+
+/* BIO CERCHIO */
+.bio-circle{
+  width: var(--bio-d);
+  max-width: min(var(--bio-d), 92vw);
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  margin-top: 16px;
+}
+
+.bio-circle__lines{
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.bio-line{
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 34px;     /* deve combaciare col JS */
+  letter-spacing: -0.02em;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* Contatti */
+.contact-wrapper{
+  margin-top: 18px;
+  text-align: center;
+}
+
+.role{
+  margin: 0 0 6px 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.contact-link-wrapper{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  text-align: center;
-  padding: 40px 20px;
-}
-
-.main-name {
-  font-size: clamp(48px, 10vw, 140px);
-  font-weight: 700;
-  margin: 0;
-  letter-spacing: -2px;
-}
-
-.subtitle {
-  font-size: clamp(18px, 2.5vw, 32px);
-  font-weight: 500;
-  margin-top: 10px;
-  color: #555;
-}
-
-/* Footer minimal */
-footer {
-  text-align: center;
-  padding: 30px 20px;
   font-size: 14px;
-  color: #777;
+}
+
+.link{
+  color: #1a0dab; /* blu “link” come screenshot */
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link:hover{
+  opacity: .85;
+}
+
+.sep{ color: var(--muted); }
+.arrow{ display: inline-block; transform: translateY(-1px); }
+
+/* Filtri */
+.filters{
+  margin-top: 22px;
+}
+
+.filter-row{
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  justify-items: center;
+}
+
+.filter-group{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.pill{
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--pill-border);
+  padding: 6px 14px;
+  border-radius: 0;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.pill.is-active{
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* Main content (lista lavori) */
+.page-content{
+  margin-top: 26px;
+  padding-bottom: 40px;
+}
+
+.content-grid{
+  display: grid;
+  grid-template-columns: minmax(16px, 1fr) minmax(280px, 980px) minmax(16px, 1fr);
+}
+
+.work-list{
+  grid-column: 2;
+  margin-top: 8px;
+}
+
+.work-item{
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  align-items: baseline;
+  gap: 14px;
+  padding: 6px 0;
+}
+
+.date{
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.work-link{
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: #1a0dab;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.title{
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.footer{
+  grid-column: 2;
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 520px){
+  .bio-line{
+    font-size: 22px;
+    line-height: 26px;
+  }
+
+  .work-item{
+    grid-template-columns: 90px 1fr;
+  }
 }
