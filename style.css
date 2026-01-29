@@ -2,10 +2,11 @@
   --bg: #ffffff;
   --text: #0b0b0b;
   --muted: #3a3a3a;
-  --line: rgba(0,0,0,.20);
-  --pill-border: rgba(0,0,0,.30);
 
-  --bio-d: 520px; /* viene anche sovrascritto da JS */
+  --pill-border: rgba(0,0,0,.35);
+
+  /* cerchio (sovrascritto anche da JS) */
+  --bio-d: 420px;
 }
 
 *{ box-sizing: border-box; }
@@ -30,7 +31,7 @@ body{
   border:0!important;
 }
 
-/* Header layout come riferimento (spacer ai lati) */
+/* Header layout */
 .header{
   padding: 22px 0 0;
 }
@@ -54,7 +55,7 @@ body{
   aspect-ratio: 1 / 1;
   display: grid;
   place-items: center;
-  margin-top: 16px;
+  margin-top: 10px; /* più simile allo screenshot */
 }
 
 .bio-circle__lines{
@@ -63,14 +64,15 @@ body{
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 0;
 }
 
+/* IMPORTANT: font-size/line-height vengono settati dal JS inline.
+   Qui mettiamo solo fallback piccoli e “da screenshot”. */
 .bio-line{
   font-weight: 600;
-  font-size: 32px;
-  line-height: 34px;     /* deve combaciare col JS */
-  letter-spacing: -0.02em;
+  font-size: 14px;
+  line-height: 16px;
+  letter-spacing: -0.01em;
   text-align: center;
   white-space: nowrap;
   overflow: hidden;
@@ -78,13 +80,13 @@ body{
 
 /* Contatti */
 .contact-wrapper{
-  margin-top: 18px;
+  margin-top: 14px;
   text-align: center;
 }
 
 .role{
   margin: 0 0 6px 0;
-  font-size: 14px;
+  font-size: 12px;
   color: var(--muted);
 }
 
@@ -94,7 +96,7 @@ body{
   gap: 10px;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .link{
@@ -102,16 +104,17 @@ body{
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.link:hover{
-  opacity: .85;
-}
+.link:hover{ opacity: .85; }
 
 .sep{ color: var(--muted); }
-.arrow{ display: inline-block; transform: translateY(-1px); }
 
-/* Filtri */
+/* Filtri + connettore */
 .filters{
-  margin-top: 22px;
+  margin-top: 18px;
+  position: relative; /* necessario per l’SVG overlay */
+  width: 100%;
+  display: grid;
+  justify-items: center;
 }
 
 .filter-row{
@@ -124,18 +127,19 @@ body{
 .filter-group{
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
 }
 
+/* Bottoni come screenshot */
 .pill{
   appearance: none;
   background: transparent;
   border: 1px solid var(--pill-border);
-  padding: 6px 14px;
+  padding: 6px 16px;
   border-radius: 0;
   font: inherit;
-  font-size: 13px;
+  font-size: 12px;
   cursor: pointer;
   color: var(--text);
 }
@@ -146,53 +150,72 @@ body{
   border-color: #000;
 }
 
-/* Main content (lista lavori) */
+/* SVG “lineetta” */
+.filter-connector{
+  position: absolute;
+  inset: -8px 0 -8px 0;   /* un pelo più ampio del box bottoni */
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+#filterConnectorPath{
+  stroke: #000;
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Main content */
 .page-content{
-  margin-top: 26px;
+  margin-top: 50px; /* nello screenshot c’è più aria prima della lista */
   padding-bottom: 40px;
 }
 
-.content-grid{
+/* LISTA LAVORI “anni a sinistra” + “titoli centrati” */
+.work-grid{
+  width: 100%;
   display: grid;
-  grid-template-columns: minmax(16px, 1fr) minmax(280px, 980px) minmax(16px, 1fr);
+  gap: 6px;
 }
 
-.work-list{
-  grid-column: 2;
-  margin-top: 8px;
-}
-
-.work-item{
+/* ogni riga: 3 colonne -> anno | titolo centrato | spacer */
+.work-row{
+  width: 100%;
   display: grid;
-  grid-template-columns: 120px 1fr;
+  grid-template-columns: minmax(70px, 1fr) minmax(280px, 980px) minmax(70px, 1fr);
   align-items: baseline;
-  gap: 14px;
-  padding: 6px 0;
+  padding: 2px 0;
 }
 
-.date{
-  margin: 0;
-  font-size: 13px;
+.work-year{
+  justify-self: start;
+  padding-left: 16px;    /* spinge l’anno verso il bordo sinistro */
+  font-size: 12px;
   color: var(--muted);
 }
 
+.work-title{
+  justify-self: center;
+  text-align: center;
+  padding: 0 10px;
+}
+
 .work-link{
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
   color: #1a0dab;
   text-decoration: underline;
   text-underline-offset: 2px;
-}
-
-.title{
-  margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
 }
 
+.work-spacer{
+  /* solo per mantenere la griglia simmetrica */
+}
+
+/* Footer */
 .footer{
-  grid-column: 2;
   margin-top: 28px;
   font-size: 12px;
   color: var(--muted);
@@ -201,12 +224,16 @@ body{
 
 /* Responsive */
 @media (max-width: 520px){
-  .bio-line{
-    font-size: 22px;
-    line-height: 26px;
+  .work-row{
+    grid-template-columns: 90px 1fr 0px;
   }
 
-  .work-item{
-    grid-template-columns: 90px 1fr;
+  .work-year{
+    padding-left: 12px;
+  }
+
+  .bio-line{
+    font-size: 12px;
+    line-height: 14px;
   }
 }
