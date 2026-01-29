@@ -18,17 +18,14 @@
 
       <div class="header-content">
 
-        <!-- Testo sorgente (non visibile) -->
         <p id="bioSource" class="sr-only">
 È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
         </p>
 
-        <!-- Cerchio -->
         <div class="bio-circle" aria-label="Bio">
           <div id="bioCircleLines" class="bio-circle__lines"></div>
         </div>
 
-        <!-- Contatti -->
         <div class="contact-wrapper">
           <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
@@ -42,7 +39,6 @@
           </div>
         </div>
 
-        <!-- Filtri -->
         <section class="filters" id="filters" aria-label="Filtri">
           <div class="filter-stack" id="filterStack">
 
@@ -112,11 +108,11 @@
     </footer>
 
     <script>
-      // -----------------------------
-      // CERCHIO: auto-fit “vero”
-      // Obiettivo: ultimo testo vicino al fondo del cerchio (niente vuoto gigante)
-      // -----------------------------
-      (function renderCircle() {
+      // ------------------------------------------------------------
+      // CERCHIO: riempie ogni riga fino alla corda del cerchio (word-spacing dinamico)
+      // così l'occhio vede un bordo circolare, non un rombo.
+      // ------------------------------------------------------------
+      (function renderCircleJustified() {
         const sourceEl = document.getElementById('bioSource');
         const outEl = document.getElementById('bioCircleLines');
         if (!sourceEl || !outEl) return;
@@ -132,113 +128,155 @@
           return Math.max(0, 2 * half);
         }
 
-        function layoutOnce(diameter, fs) {
-          const lh = fs + 2.0;
+        function measure(str, font) {
+          ctx.font = font;
+          return ctx.measureText(str).width;
+        }
+
+        function layout(diameter, fs, lh) {
           const padding = 10;
           const r = (diameter / 2) - padding;
-          const linesCount = Math.max(22, Math.floor((2 * r) / lh));
+
+          const linesCount = Math.max(30, Math.floor((2 * r) / lh)); // TANTE righe = più cerchio
           const yStart = -r + (lh / 2);
 
-          ctx.font = `600 ${fs}px "General Sans", Arial, sans-serif`;
+          const font = `600 ${fs}px "General Sans", Arial, sans-serif`;
 
           const lines = [];
           let idx = 0;
-          let lastUsed = -1;
 
           for (let i = 0; i < linesCount; i++) {
             const y = yStart + i * lh;
             const maxW = maxWidthAtY(r, y);
 
-            // poli: lascia vuoto per arrotondare
-            if (maxW < fs * 2.6) {
-              lines.push({ w: maxW, t: "", fs, lh });
+            // poli: lascia righe vuote/strettissime per arrotondare
+            if (maxW < fs * 2.8) {
+              lines.push({ w: maxW, text: "", spaces: 0, fs, lh, justify: false });
               continue;
             }
 
-            let line = "";
+            let lineWords = [];
             while (idx < words.length) {
-              const next = line ? (line + " " + words[idx]) : words[idx];
-              const w = ctx.measureText(next).width;
-              if (w <= maxW) { line = next; idx++; }
-              else break;
+              const candidate = lineWords.length ? [...lineWords, words[idx]] : [words[idx]];
+              const candidateStr = candidate.join(' ');
+              const w = measure(candidateStr, font);
+
+              if (w <= maxW) {
+                lineWords = candidate;
+                idx++;
+              } else {
+                break;
+              }
             }
 
-            // se una parola non entra mai, forzala (meglio che troncare)
-            if (!line && idx < words.length) line = words[idx++];
+            if (!lineWords.length && idx < words.length) {
+              lineWords = [words[idx++]]; // fallback
+            }
 
-            if (line) lastUsed = i;
-            lines.push({ w: maxW, t: line, fs, lh });
+            const str = lineWords.join(' ');
+            const spaces = Math.max(0, lineWords.length - 1);
 
-            if (idx >= words.length) break;
+            lines.push({
+              w: maxW,
+              text: str,
+              spaces,
+              fs,
+              lh,
+              // giustifica SOLO se ci sono abbastanza spazi e non è l'ultima riga di testo
+              justify: spaces >= 2
+            });
+
+            if (idx >= words.length) {
+              // riempi il resto con righe vuote per completare il cerchio
+              for (let j = i + 1; j < linesCount; j++) {
+                const y2 = yStart + j * lh;
+                const maxW2 = maxWidthAtY(r, y2);
+                lines.push({ w: maxW2, text: "", spaces: 0, fs, lh, justify: false });
+              }
+              break;
+            }
           }
 
           const overflow = idx < words.length;
-          return { lines, overflow, lastUsed, linesCount, fs, lh };
+          return { lines, overflow, fs, lh, diameter };
         }
 
-        function renderLines(result, diameter) {
+        function render(result) {
+          const container = outEl.closest('.bio-circle');
+          container.style.setProperty('--bio-d', `${result.diameter}px`);
+
+          outEl.style.setProperty('--bio-fs', `${result.fs}px`);
+          outEl.style.setProperty('--bio-lh', `${result.lh}px`);
+
           outEl.innerHTML = "";
-          outEl.closest(".bio-circle").style.setProperty("--bio-d", `${diameter}px`);
 
-          // IMPORTANT: rendiamo l’altezza del cerchio “vera” (diametro)
-          // così non ti crea spazi strani/scroll.
-          outEl.style.setProperty("--bio-fs", `${result.fs}px`);
-          outEl.style.setProperty("--bio-lh", `${result.lh}px`);
+          const font = `600 ${result.fs}px "General Sans", Arial, sans-serif`;
 
-          // disegniamo TUTTE le righe fino a linesCount,
-          // e quelle dopo lastUsed diventano vuote per chiudere il cerchio.
-          const linesCountTarget = Math.max(result.linesCount, result.lines.length);
+          // trova l'ultima riga non-vuota per NON giustificarla (come nei libri)
+          let lastTextIndex = -1;
+          result.lines.forEach((ln, i) => { if (ln.text) lastTextIndex = i; });
 
-          for (let i = 0; i < linesCountTarget; i++) {
-            const item = result.lines[i] || result.lines[result.lines.length - 1];
-            const div = document.createElement("div");
-            div.className = "bio-line";
-            div.style.width = `${item.w}px`;
-            div.innerHTML = (i <= result.lastUsed && item.t) ? item.t : "&nbsp;";
+          result.lines.forEach((ln, i) => {
+            const div = document.createElement('div');
+            div.className = 'bio-line';
+            div.style.width = `${ln.w}px`;
+
+            if (!ln.text) {
+              div.innerHTML = "&nbsp;";
+              outEl.appendChild(div);
+              return;
+            }
+
+            // calcola word-spacing per arrivare quasi a ln.w
+            // (solo se non è l'ultima riga di testo)
+            const shouldJustify = ln.justify && i !== lastTextIndex;
+
+            if (shouldJustify) {
+              const rawW = measure(ln.text, font);
+              const diff = ln.w - rawW;
+
+              // distribuisci il diff sugli spazi, clamp per non sfasciare
+              const ws = Math.max(0, Math.min(6, diff / ln.spaces));
+              div.style.wordSpacing = `${ws}px`;
+            } else {
+              div.style.wordSpacing = `0px`;
+            }
+
+            div.textContent = ln.text;
             outEl.appendChild(div);
-          }
+          });
         }
 
-        // diametro più simile reference (meno “vuoto” sotto)
+        // Diametro più vicino reference + meno "vuoto"
         let diameter = Math.min(420, Math.floor(window.innerWidth * 0.86));
 
-        // Ricerca fs: vogliamo:
-        // - non overflow
-        // - lastUsed vicino al fondo (linesCount-2)
+        // Ricerca font size: deve entrare tutto e riempire bene
+        // Proviamo piccoli -> cerchio più liscio
         let best = null;
-        for (let fs = 11; fs <= 16; fs += 0.25) {
-          const r = layoutOnce(diameter, fs);
+
+        for (let fs = 10.5; fs <= 13; fs += 0.25) {
+          const lh = fs + 2.0;
+          const r = layout(diameter, fs, lh);
           if (r.overflow) continue;
 
-          const target = r.linesCount - 2;
-          const score = Math.abs((r.lastUsed >= 0 ? r.lastUsed : 0) - target);
+          // score: preferisci più righe "con testo" (meno vuoti)
+          const textLines = r.lines.filter(x => x.text).length;
+          const score = -textLines;
 
-          if (!best || score < best.score) best = { ...r, score, fs };
-        }
-
-        // se non troviamo nulla (rarissimo), riduci diametro e riprova
-        if (!best) {
-          diameter = Math.max(340, diameter - 60);
-          for (let fs = 11; fs <= 16; fs += 0.25) {
-            const r = layoutOnce(diameter, fs);
-            if (r.overflow) continue;
-            const target = r.linesCount - 2;
-            const score = Math.abs((r.lastUsed >= 0 ? r.lastUsed : 0) - target);
-            if (!best || score < best.score) best = { ...r, score, fs };
-          }
+          if (!best || score < best.score) best = { ...r, score };
         }
 
         if (!best) {
-          // fallback estremo: render semplice
-          best = layoutOnce(diameter, 12);
+          // fallback
+          best = layout(diameter, 11.5, 13.5);
         }
 
-        renderLines(best, diameter);
+        render(best);
       })();
 
-      // -----------------------------
-      // FILTRI + freccia “più hand-drawn”
-      // -----------------------------
+      // ------------------------------------------------------------
+      // FILTRI + freccia
+      // ------------------------------------------------------------
       (function filtersAndConnector() {
         const state = { category: 'Journalism', tag: 'Fashion' };
         const categoryGroup = document.getElementById('categoryGroup');
@@ -299,18 +337,17 @@
           const x2 = ((p2.x - fr.left) / fr.width) * 100;
           const y2 = ((p2.y - fr.top) / fr.height) * 100;
 
-          // più simile reference: “S” stretta con pancia + piccola gobba
+          // “hand-drawn”: S più stretta con 2 gobbe
           const midX = (x1 + x2) / 2;
           const midY = (y1 + y2) / 2;
-          const bump = 10;
 
           const d = `
             M ${x1} ${y1}
-            C ${x1 + 6} ${midY - bump},
-              ${midX - 10} ${midY + bump},
+            C ${x1 + 8} ${midY - 12},
+              ${midX - 14} ${midY + 12},
               ${midX} ${midY}
-            C ${midX + 10} ${midY - bump},
-              ${x2 - 6} ${midY + bump},
+            C ${midX + 14} ${midY - 12},
+              ${x2 - 8} ${midY + 12},
               ${x2} ${y2}
           `;
           path.setAttribute('d', d);
