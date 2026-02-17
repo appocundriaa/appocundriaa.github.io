@@ -15,36 +15,53 @@
 
       <div class="header-content">
 
-        <!-- TESTO: NON MODIFICARE -->
+        <!-- BIO (source, per accessibilità / eventuali usi futuri) -->
         <p id="bioSource" class="sr-only">
-È un Sironi! Tra i più famosi. Pubblicato su tutti i cataloghi. È del periodo pessimista! Il più raro. Questo se t'o attacchi in ufficio c'hai uno scatto da così a così! Te lo metti in casa, fai un figurone! Io ce l'ho avuto in salotto per vent'anni, tu non sai quanto m'ha aiutato a me, le serate che m'ha risolto... perché è anche un argomento di conversazione, sai? C'è pure chi dice: se c'ha 'e zinne viola, de che colore c'avrà er culo?
+Marco Marino moves between products and words, strategy and concept design. A designer and independent researcher. He studies the intersection strategies between fashion and art worlds. With a BA in Fashion Design and Multimedia Arts from IUAV in Venice, he now pursues an MA in Fashion Strategy at UNIBO. He lends his voice and vision to brands and institutions, shaping images and concepts. Navigates between practice and theory. Writes, sometimes for webzines, sometimes for those who ask, sometimes just to see what happens.
         </p>
 
-        <!-- T-SHIRT -->
-        <div class="tshirt-wrap" aria-label="Testo dentro una maglietta">
-          <svg id="tshirtSvg" class="tshirt-svg" viewBox="0 0 512 512" role="img" aria-label="T-shirt text">
-            <defs>
-              <clipPath id="tshirtInnerClip" clipPathUnits="userSpaceOnUse">
-                <path id="tshirtInnerPath" d="
-                  M 140 115
-                  L 372 115
-                  L 460 195
-                  L 420 250
-                  L 350 230
-                  L 350 430
-                  L 162 430
-                  L 162 230
-                  L 92 250
-                  L 52 195
-                  Z
-                "/>
-              </clipPath>
-            </defs>
-
-            <!-- ✅ TESTO SVG (NO foreignObject) clippato nella maglietta -->
-            <g id="tshirtTextGroup" clip-path="url(#tshirtInnerClip)"></g>
-          </svg>
+        <!-- BIO (VISIBILE) -->
+        <div class="bio-block" aria-label="Bio">
+          <p>
+            Marco Marino moves between products and words, strategy and concept design. A<br>
+            designer and independent researcher. He studies the intersection strategies between<br>
+            fashion and art worlds. With a BA in Fashion Design and Multimedia Arts from IUAV in<br>
+            Venice, he now pursues an MA in Fashion Strategy at UNIBO.<br>
+            He lends his voice and vision to brands and institutions, shaping images and concepts. Navigates between<br>
+            practice and theory. Writes, sometimes for webzines, sometimes for those who ask,<br>
+            sometimes just to see what happens.
+          </p>
         </div>
+
+        <!-- FILTRI (2 colonne verticali + linea) -->
+        <section class="filters" aria-label="Filtri">
+          <div class="filter-stack" id="filterStack">
+
+            <!-- UNA SOLA linea -->
+            <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path id="connector" d="" fill="none"></path>
+            </svg>
+
+            <div class="filter-group filter-col" id="categoryGroup" aria-label="Categorie">
+              <button class="pill" data-filter="Essay" type="button">Essay</button>
+              <button class="pill" data-filter="Speaking" type="button">Speaking</button>
+              <button class="pill" data-filter="Editing" type="button">Editing</button>
+              <button class="pill is-active" data-filter="Journalism" type="button">Journalism</button>
+            </div>
+
+            <div class="filter-group filter-col" id="tagGroup" aria-label="Tag">
+              <button class="pill is-active" data-filter="Fashion" type="button">Fashion</button>
+              <button class="pill" data-filter="Art" type="button">Art</button>
+              <button class="pill" data-filter="Culture" type="button">Culture</button>
+              <button class="pill" data-filter="Design" type="button">Design</button>
+              <button class="pill" data-filter="History" type="button">History</button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- RIGA IN MEZZO (tra categorie e contatti) -->
+        <p class="midline">Strategy, Image, Special Projects, Writer…</p>
 
         <!-- CONTATTI -->
         <div class="contact-wrapper">
@@ -56,35 +73,11 @@
               @appocundriaa ↗
             </a>
             <span class="sep">|</span>
-            <a class="link" href="#" target="_blank" rel="noreferrer">substack.com ↗</a>
+            <a class="link" href="https://www.linkedin.com/in/marco-marino-219237100/" target="_blank" rel="noreferrer">
+              LinkedIn ↗
+            </a>
           </div>
         </div>
-
-        <!-- FILTRI -->
-        <section class="filters" aria-label="Filtri">
-          <div class="filter-stack" id="filterStack">
-
-            <!-- UN SOLO scarabocchio -->
-            <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <path id="scribble" d="" fill="none"></path>
-            </svg>
-
-            <div class="filter-group" id="categoryGroup">
-              <button class="pill" data-filter="Essay" type="button">Essay</button>
-              <button class="pill" data-filter="Speaking" type="button">Speaking</button>
-              <button class="pill" data-filter="Editing" type="button">Editing</button>
-              <button class="pill is-active" data-filter="Journalism" type="button">Journalism</button>
-            </div>
-
-            <div class="filter-group" id="tagGroup">
-              <button class="pill is-active" data-filter="Fashion" type="button">Fashion</button>
-              <button class="pill" data-filter="Art" type="button">Art</button>
-              <button class="pill" data-filter="Culture" type="button">Culture</button>
-              <button class="pill" data-filter="Design" type="button">Design</button>
-              <button class="pill" data-filter="History" type="button">History</button>
-            </div>
-          </div>
-        </section>
 
       </div>
 
@@ -94,6 +87,7 @@
 
   <main class="page-content">
     <section class="work-grid" aria-label="Lavori">
+
       <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
         <div class="work-year">2025</div>
         <div class="work-title">
@@ -123,6 +117,7 @@
         </div>
         <div class="work-spacer"></div>
       </article>
+
     </section>
 
     <footer class="footer">
@@ -131,167 +126,7 @@
   </main>
 
   <script>
-    // ======== TESTO T-SHIRT: SVG TEXT ========
-
-    function getBioText(){
-      const src = document.getElementById('bioSource');
-      return (src?.textContent || '').trim().replace(/\s+/g, ' ');
-    }
-
-    function makeMeasure(font){
-      const c = document.createElement('canvas');
-      const ctx = c.getContext('2d');
-      ctx.font = font;
-      return (str) => ctx.measureText(str).width;
-    }
-
-    const CLIP_POLY = [
-      {x:140, y:115},
-      {x:372, y:115},
-      {x:460, y:195},
-      {x:420, y:250},
-      {x:350, y:230},
-      {x:350, y:430},
-      {x:162, y:430},
-      {x:162, y:230},
-      {x: 92, y:250},
-      {x: 52, y:195}
-    ];
-
-    const MIN_Y = 115;
-    const MAX_Y = 430;
-    const CLIP_H = MAX_Y - MIN_Y;
-
-    function segIntersectX(p1, p2, y){
-      const y1 = p1.y, y2 = p2.y;
-      const minY = Math.min(y1, y2);
-      const maxY = Math.max(y1, y2);
-      if (y < minY || y >= maxY) return null;
-      if (y1 === y2) return null;
-      const t = (y - y1) / (y2 - y1);
-      return p1.x + t * (p2.x - p1.x);
-    }
-
-    function widthAtY(y){
-      const xs = [];
-      for (let i = 0; i < CLIP_POLY.length; i++){
-        const a = CLIP_POLY[i];
-        const b = CLIP_POLY[(i + 1) % CLIP_POLY.length];
-        const x = segIntersectX(a, b, y);
-        if (x !== null) xs.push(x);
-      }
-      if (xs.length < 2) return 0;
-      xs.sort((m,n) => m - n);
-
-      let best = 0;
-      for (let i = 0; i + 1 < xs.length; i += 2){
-        best = Math.max(best, xs[i+1] - xs[i]);
-      }
-      return best;
-    }
-
-    function layoutTshirtTextSVG(){
-      const svg = document.getElementById('tshirtSvg');
-      const g = document.getElementById('tshirtTextGroup');
-      if (!svg || !g) return;
-
-      const text = getBioText();
-      while (g.firstChild) g.removeChild(g.firstChild);
-      if (!text) return;
-
-      const svgRect = svg.getBoundingClientRect();
-      const pxPerSvg = svgRect.width / 512;
-
-      const family = 'KeroinePRO, "General Sans", Arial, sans-serif';
-      const weight = 600;
-      const lineHeightRatio = 1.10;
-
-      const TOP = 6;
-      const BOTTOM = 6;
-      const SAFE = 0.94;
-
-      function tryFit(size){
-        const lineH = size * lineHeightRatio;
-        const usableH = Math.max(1, CLIP_H - TOP - BOTTOM);
-        const maxLines = Math.max(1, Math.floor(usableH / lineH));
-
-        const font = `${weight} ${size}px ${family}`;
-        const measure = makeMeasure(font);
-
-        let idx = 0;
-        const lines = [];
-
-        for (let i = 0; i < maxLines && idx < text.length; i++){
-          const y = MIN_Y + TOP + i * lineH;
-          const yMid = y + lineH * 0.55;
-
-          const eps = 0.001;
-          const yClamped = Math.max(MIN_Y + eps, Math.min(MAX_Y - eps, yMid));
-
-          const wSvg = widthAtY(yClamped) * SAFE;
-          const maxWpx = Math.max(8, wSvg * pxPerSvg);
-
-          let chunk = '';
-          let lastGood = '';
-          let lastGoodIdx = idx;
-
-          while (idx < text.length){
-            const next = chunk + text[idx];
-            if (measure(next) <= maxWpx){
-              chunk = next;
-              lastGood = chunk;
-              lastGoodIdx = idx + 1;
-              idx++;
-            } else break;
-          }
-
-          if (!lastGood){
-            lastGood = text[idx] || '';
-            lastGoodIdx = idx + 1;
-            idx = lastGoodIdx;
-          }
-
-          lines.push({
-            y,
-            text: lastGood.replace(/^\s+/, '')
-          });
-          idx = lastGoodIdx;
-        }
-
-        return { finished: idx >= text.length, lines };
-      }
-
-      const MAX = 44;
-      const MIN = 8;
-      let best = null;
-
-      for (let s = MAX; s >= MIN; s -= 0.5){
-        const res = tryFit(s);
-        if (res.finished){
-          best = { fontSize: s, ...res };
-          break;
-        }
-      }
-      if (!best){
-        best = { fontSize: MIN, ...tryFit(MIN) };
-      }
-
-      for (const line of best.lines){
-        const t = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        t.setAttribute('x', '256');
-        t.setAttribute('y', String(line.y));
-        t.setAttribute('text-anchor', 'middle');
-        t.setAttribute('dominant-baseline', 'hanging');
-        t.setAttribute('font-family', family);
-        t.setAttribute('font-weight', String(weight));
-        t.setAttribute('font-size', String(best.fontSize));
-        t.setAttribute('fill', '#0b0b0b');
-        t.textContent = line.text;
-        g.appendChild(t);
-      }
-    }
-
-    // ======== FILTRI ========
+    // ======== FILTRI + LINEA LINEARE COLORATA RANDOM ========
 
     function setupFilters() {
       const state = { category: 'Journalism', tag: 'Fashion' };
@@ -321,7 +156,7 @@
           state[key] = btn.dataset.filter;
           setActive(groupEl, state[key]);
           updateList();
-          drawScribble(state.category + '|' + state.tag);
+          drawConnectorLine();
         });
       };
 
@@ -330,119 +165,64 @@
       setActive(categoryGroup, state.category);
       setActive(tagGroup, state.tag);
       updateList();
-      drawScribble(state.category + '|' + state.tag);
+      drawConnectorLine();
     }
 
-    // ======== scarabocchio ========
-
-    function seededRand(seedStr) {
-      let h = 2166136261;
-      for (let i = 0; i < seedStr.length; i++) h = (h ^ seedStr.charCodeAt(i)) * 16777619;
-      let x = h >>> 0;
-      return () => {
-        x ^= x << 13; x >>>= 0;
-        x ^= x >> 17; x >>>= 0;
-        x ^= x << 5;  x >>>= 0;
-        return (x >>> 0) / 4294967296;
-      };
-    }
-
-    function randomScribbleColor(){
+    function randomLineColor(){
       const hue = Math.floor(Math.random() * 360);
       const sat = 75 + Math.random() * 20;
       const light = 35 + Math.random() * 20;
       return `hsl(${hue} ${sat}% ${light}%)`;
     }
 
-    function drawScribble(seedKey) {
+    function drawConnectorLine() {
       const stackEl = document.getElementById('filterStack');
       const categoryGroup = document.getElementById('categoryGroup');
       const tagGroup = document.getElementById('tagGroup');
-      const s = document.getElementById('scribble');
-      if (!stackEl || !categoryGroup || !tagGroup || !s) return;
+      const path = document.getElementById('connector');
+      if (!stackEl || !categoryGroup || !tagGroup || !path) return;
 
       const a = categoryGroup.querySelector('.pill.is-active');
       const b = tagGroup.querySelector('.pill.is-active');
-      if (!a || !b) { s.setAttribute('d',''); return; }
+      if (!a || !b) { path.setAttribute('d',''); return; }
 
       const fr = stackEl.getBoundingClientRect();
       const ra = a.getBoundingClientRect();
       const rb = b.getBoundingClientRect();
 
-      // stroke width in px (non-scaling-stroke)
-      const swPx = parseFloat(getComputedStyle(s).strokeWidth) || 1.25;
-      const edgePadPct = ((swPx / 2) / fr.height) * 100; // mezzo stroke fuori dal bottone
+      // stroke width in px (vector-effect: non-scaling-stroke)
+      const swPx = parseFloat(getComputedStyle(path).strokeWidth) || 1.6;
 
-      // ✅ ATTACCHI ESATTI SUL BORDO (metà bordo)
-      const x1 = ((ra.left + ra.width/2) - fr.left) / fr.width * 100;
-      const y1 = ((ra.bottom - fr.top) / fr.height) * 100 + edgePadPct; // sotto + mezzo stroke
+      // padding per far “toccare” il bordo e non entrare dentro
+      const padXPct = ((swPx / 2) / fr.width) * 100;
 
-      const x2 = ((rb.left + rb.width/2) - fr.left) / fr.width * 100;
-      const y2 = ((rb.top - fr.top) / fr.height) * 100 - edgePadPct;    // sopra - mezzo stroke
+      // START: bordo destro del bottone sinistro (metà altezza)
+      const x1 = ((ra.right - fr.left) / fr.width) * 100 + padXPct;
+      const y1 = ((ra.top + ra.height/2 - fr.top) / fr.height) * 100;
 
-      // colore random ogni volta
-      s.style.stroke = randomScribbleColor();
+      // END: bordo sinistro del bottone destro (metà altezza)
+      const x2 = ((rb.left - fr.left) / fr.width) * 100 - padXPct;
+      const y2 = ((rb.top + rb.height/2 - fr.top) / fr.height) * 100;
 
-      const r = seededRand(seedKey);
+      // colore random ad ogni redraw
+      path.style.stroke = randomLineColor();
 
-      // controlli (jitter leggero ma endpoints rimangono esatti)
-      const cx1 = x1 + (x2 - x1) * 0.25;
-      const cy1 = y1 + (r()-0.5)*8;
-      const cx2 = x1 + (x2 - x1) * 0.75;
-      const cy2 = y2 + (r()-0.5)*8;
+      // linea “quasi” dritta: una leggera curva controllata (molto pulita)
+      const mx = (x1 + x2) / 2;
+      const c1x = mx;
+      const c1y = y1;
+      const c2x = mx;
+      const c2y = y2;
 
-      function bezier(t){
-        const mt = 1 - t;
-        const x = mt*mt*mt*x1 + 3*mt*mt*t*cx1 + 3*mt*t*t*cx2 + t*t*t*x2;
-        const y = mt*mt*mt*y1 + 3*mt*mt*t*cy1 + 3*mt*t*t*cy2 + t*t*t*y2;
-        return {x,y};
-      }
-
-      const pts = [];
-      const steps = 22;
-      for (let i = 0; i <= steps; i++) {
-        const t = i / steps;
-        const p = bezier(t);
-
-        // ✅ NIENTE jitter sugli estremi, così “tocca” preciso
-        if (i === 0 || i === steps) {
-          pts.push({ x: p.x, y: p.y });
-          continue;
-        }
-
-        const amp = Math.sin(Math.PI * t) * 2.2;
-        pts.push({
-          x: p.x + (r()-0.5)*amp*2.4,
-          y: p.y + (r()-0.5)*amp*3.0
-        });
-      }
-
-      let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
-      for (let i = 1; i < pts.length - 1; i++) {
-        const cpx = pts[i].x, cpy = pts[i].y;
-        const nx = (pts[i].x + pts[i+1].x) / 2;
-        const ny = (pts[i].y + pts[i+1].y) / 2;
-        d += ` Q ${cpx.toFixed(2)} ${cpy.toFixed(2)} ${nx.toFixed(2)} ${ny.toFixed(2)}`;
-      }
-      d += ` L ${pts[pts.length-1].x.toFixed(2)} ${pts[pts.length-1].y.toFixed(2)}`;
-      s.setAttribute('d', d);
+      const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+      path.setAttribute('d', d);
     }
 
     (function init(){
       setupFilters();
 
-      const run = () => layoutTshirtTextSVG();
-      if (document.fonts && document.fonts.ready) {
-        document.fonts.ready.then(run);
-      } else {
-        run();
-      }
-
       window.addEventListener('resize', () => {
-        layoutTshirtTextSVG();
-        const c = document.querySelector('#categoryGroup .pill.is-active')?.dataset.filter || '';
-        const t = document.querySelector('#tagGroup .pill.is-active')?.dataset.filter || '';
-        drawScribble(c + '|' + t);
+        drawConnectorLine();
       });
     })();
   </script>
