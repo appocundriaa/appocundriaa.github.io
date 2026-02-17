@@ -57,9 +57,9 @@ body{
   font-style: italic;
 }
 
-/* ✅ PIÙ SPAZIO DOPO LA BIO */
+/* 🔥 PIÙ SPAZIO SOTTO LA BIO */
 .descriptor{
-  margin: 26px 0 16px;   /* prima era più stretto */
+  margin: 38px 0 28px;   /* ← aumentato sia sopra che sotto */
   color: var(--muted);
   font-size: 14px;
   text-align: center;
@@ -70,7 +70,7 @@ body{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 0 0 18px;     /* ✅ più spazio sotto i contatti */
+  margin: 0 0 22px;     /* leggermente più aria */
 }
 
 .contact-link-wrapper{
@@ -90,24 +90,24 @@ body{
 .link:hover{ opacity:.85; }
 .sep{ color: var(--muted); }
 
-/* FILTRI */
+/* 🔥 FILTRI – PIÙ SPAZIO SOPRA */
 .filters{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 0 0 14px;   /* ✅ aria sopra/sotto filtri */
+  margin: 26px 0 18px;   /* ← questo è il punto chiave */
 }
 
 .filter-panel{
   width: min(760px, 92vw);
-  padding: 8px 4px;   /* leggermente più arioso */
+  padding: 8px 4px;
   position: relative;
 }
 
 .filter-cols{
   display:flex;
   justify-content: space-between;
-  gap: 44px;          /* più respiro tra le due colonne */
+  gap: 44px;
   position: relative;
   z-index: 1;
 }
@@ -115,7 +115,7 @@ body{
 .filter-col{
   display:flex;
   flex-direction: column;
-  gap: 12px;          /* più spazio verticale tra pillole */
+  gap: 12px;
 }
 
 .pill{
@@ -222,8 +222,8 @@ body{
 /* RESPONSIVE */
 @media (max-width: 720px){
   .bio{ font-size: 16px; }
-  .descriptor{ font-size: 13px; margin: 22px 0 14px; }
-  .contact-wrapper{ margin-bottom: 16px; }
+  .descriptor{ margin: 30px 0 24px; font-size: 13px; }
+  .contact-wrapper{ margin-bottom: 18px; }
 
   .filter-cols{ gap: 18px; }
   .pill{ min-width: 145px; font-size: 11px; padding: 8px 10px; }
