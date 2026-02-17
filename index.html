@@ -1,3 +1,4 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -8,64 +9,27 @@
 </head>
 
 <body>
-
   <header class="header">
     <div class="header-grid">
       <div></div>
 
       <div class="header-content">
 
-        <!-- BIO (source, per accessibilità / eventuali usi futuri) -->
-        <p id="bioSource" class="sr-only">
-Marco Marino moves between products and words, strategy and concept design. A designer and independent researcher. He studies the intersection strategies between fashion and art worlds. With a BA in Fashion Design and Multimedia Arts from IUAV in Venice, he now pursues an MA in Fashion Strategy at UNIBO. He lends his voice and vision to brands and institutions, shaping images and concepts. Navigates between practice and theory. Writes, sometimes for webzines, sometimes for those who ask, sometimes just to see what happens.
+        <!-- BIO (TESTO VISIBILE) -->
+        <p class="bio" id="bioText">
+          Marco Marino moves between products and words, strategy and concept design. A
+          designer and independent researcher. He studies the intersection strategies between
+          fashion and art worlds. With a BA in Fashion Design and Multimedia Arts from IUAV in
+          Venice, he now pursues an MA in Fashion Strategy at UNIBO. He lends his voice and
+          vision to brands and institutions, shaping images and concepts. Navigates between
+          practice and theory. Writes, sometimes for webzines, sometimes for those who ask,
+          sometimes just to see what happens.
         </p>
 
-        <!-- BIO (VISIBILE) -->
-        <div class="bio-block" aria-label="Bio">
-          <p>
-            Marco Marino moves between products and words, strategy and concept design. A<br>
-            designer and independent researcher. He studies the intersection strategies between<br>
-            fashion and art worlds. With a BA in Fashion Design and Multimedia Arts from IUAV in<br>
-            Venice, he now pursues an MA in Fashion Strategy at UNIBO.<br>
-            He lends his voice and vision to brands and institutions, shaping images and concepts. Navigates between<br>
-            practice and theory. Writes, sometimes for webzines, sometimes for those who ask,<br>
-            sometimes just to see what happens.
-          </p>
-        </div>
-
-        <!-- FILTRI (2 colonne verticali + linea) -->
-        <section class="filters" aria-label="Filtri">
-          <div class="filter-stack" id="filterStack">
-
-            <!-- UNA SOLA linea -->
-            <svg class="filter-connector" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <path id="connector" d="" fill="none"></path>
-            </svg>
-
-            <div class="filter-group filter-col" id="categoryGroup" aria-label="Categorie">
-              <button class="pill" data-filter="Essay" type="button">Essay</button>
-              <button class="pill" data-filter="Speaking" type="button">Speaking</button>
-              <button class="pill" data-filter="Editing" type="button">Editing</button>
-              <button class="pill is-active" data-filter="Journalism" type="button">Journalism</button>
-            </div>
-
-            <div class="filter-group filter-col" id="tagGroup" aria-label="Tag">
-              <button class="pill is-active" data-filter="Fashion" type="button">Fashion</button>
-              <button class="pill" data-filter="Art" type="button">Art</button>
-              <button class="pill" data-filter="Culture" type="button">Culture</button>
-              <button class="pill" data-filter="Design" type="button">Design</button>
-              <button class="pill" data-filter="History" type="button">History</button>
-            </div>
-
-          </div>
-        </section>
-
-        <!-- RIGA IN MEZZO (tra categorie e contatti) -->
-        <p class="midline">Strategy, Image, Special Projects, Writer…</p>
+        <p class="descriptor">Strategy, Special Projects, Writer, Image...</p>
 
         <!-- CONTATTI -->
         <div class="contact-wrapper">
-          <p class="role">Editor, writer, historian &amp;c.</p>
           <div class="contact-link-wrapper">
             <a class="link" href="mailto:mmarino1@iuav.it">mmarino1@iuav.it</a>
             <span class="sep">|</span>
@@ -74,10 +38,40 @@ Marco Marino moves between products and words, strategy and concept design. A de
             </a>
             <span class="sep">|</span>
             <a class="link" href="https://www.linkedin.com/in/marco-marino-219237100/" target="_blank" rel="noreferrer">
-              LinkedIn ↗
+              linkedin ↗
             </a>
           </div>
         </div>
+
+        <!-- FILTRI (DUE COLONNE VERTICALI) -->
+        <section class="filters" aria-label="Filtri">
+          <div class="filter-panel" id="filterPanel">
+
+            <!-- Linee (pulite, colori random) -->
+            <svg class="filter-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <g id="linesGroup"></g>
+            </svg>
+
+            <div class="filter-cols">
+              <div class="filter-col" id="categoryCol" aria-label="Categorie">
+                <button class="pill is-active" data-filter="Strategy" type="button">STRATEGY</button>
+                <button class="pill" data-filter="Special Projects" type="button">SPECIAL PROJECTS</button>
+                <button class="pill" data-filter="Visual and Concept" type="button">VISUAL AND CONCEPT</button>
+                <button class="pill" data-filter="Publication" type="button">PUBLICATION</button>
+                <button class="pill" data-filter="Writer" type="button">WRITER</button>
+              </div>
+
+              <div class="filter-col" id="tagCol" aria-label="Tags">
+                <button class="pill is-active" data-filter="Fashion" type="button">FASHION</button>
+                <button class="pill" data-filter="Art" type="button">ART</button>
+                <button class="pill" data-filter="Culture" type="button">CULTURE</button>
+                <button class="pill" data-filter="Education" type="button">EDUCATION</button>
+                <button class="pill" data-filter="Product" type="button">PRODUCT</button>
+              </div>
+            </div>
+
+          </div>
+        </section>
 
       </div>
 
@@ -86,146 +80,191 @@ Marco Marino moves between products and words, strategy and concept design. A de
   </header>
 
   <main class="page-content">
-    <section class="work-grid" aria-label="Lavori">
-
-      <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
+    <section class="work-panel" aria-label="Lavori">
+      <!-- Esempi: qui puoi aggiungere/duplicare righe mantenendo data-category e data-tags -->
+      <article class="work-row" data-category="Writer" data-tags="Fashion,Art,Culture" data-label="IMAGE">
         <div class="work-year">2025</div>
+
         <div class="work-title">
           <a class="work-link" href="#" target="_blank" rel="noreferrer">
-            Behind the Campaign @ Miu Miu with Lengua ↗
+            NSS —→ The Utopia of The Row’s resort 2026 collection
           </a>
         </div>
-        <div class="work-spacer"></div>
-      </article>
 
-      <article class="work-row" data-category="Journalism" data-tags="Fashion,Design">
-        <div class="work-year">2025</div>
-        <div class="work-title">
-          <a class="work-link" href="#" target="_blank" rel="noreferrer">
-            An Interview with Evan Kinori @ 1 Granary ↗
-          </a>
+        <div class="work-label">
+          <a class="work-label-link" href="#" target="_blank" rel="noreferrer">IMAGE</a>
         </div>
-        <div class="work-spacer"></div>
       </article>
 
-      <article class="work-row" data-category="Journalism" data-tags="Fashion,Culture">
-        <div class="work-year">2025</div>
-        <div class="work-title">
-          <a class="work-link" href="#" target="_blank" rel="noreferrer">
-            Trend Forecasters on Predicting the Future @ 1 Granary ↗
-          </a>
-        </div>
-        <div class="work-spacer"></div>
-      </article>
+      <!-- anni “vuoti” come nel PDF -->
+      <div class="work-year-only">2024</div>
+      <div class="work-year-only">2023</div>
+      <div class="work-year-only">2022</div>
+      <div class="work-year-only">2021</div>
+      <div class="work-year-only">2020</div>
+      <div class="work-year-only">2019</div>
 
+      <footer class="footer">
+        <p>Web dvlp: Edo – Marco Marino 2026</p>
+      </footer>
     </section>
-
-    <footer class="footer">
-      <p>© 2026 – Marco Marino</p>
-    </footer>
   </main>
 
   <script>
-    // ======== FILTRI + LINEA LINEARE COLORATA RANDOM ========
+    // =======================
+    // FILTERS + LINES (PDF-style)
+    // - Filtra i lavori per (category + tag)
+    // - Disegna linee multiple: dalla categoria attiva verso tutti i TAG che hanno almeno 1 lavoro
+    //   nella categoria selezionata (così ottieni 2-3 linee come nel PDF)
+    // - Colori random ogni volta che clicchi / resize
+    // =======================
 
-    function setupFilters() {
-      const state = { category: 'Journalism', tag: 'Fashion' };
-      const categoryGroup = document.getElementById('categoryGroup');
-      const tagGroup = document.getElementById('tagGroup');
-
-      const normTags = (raw) => (raw || '').split(',').map(s => s.trim()).filter(Boolean);
-
-      const setActive = (groupEl, value) => {
-        groupEl.querySelectorAll('.pill').forEach(btn => {
-          btn.classList.toggle('is-active', btn.dataset.filter === value);
-        });
-      };
-
-      const updateList = () => {
-        document.querySelectorAll('.work-row').forEach((row) => {
-          const c = row.getAttribute('data-category') || '';
-          const tags = normTags(row.getAttribute('data-tags'));
-          row.style.display = (c === state.category && tags.includes(state.tag)) ? '' : 'none';
-        });
-      };
-
-      const bind = (groupEl, key) => {
-        groupEl.addEventListener('click', (e) => {
-          const btn = e.target.closest('button[data-filter]');
-          if (!btn) return;
-          state[key] = btn.dataset.filter;
-          setActive(groupEl, state[key]);
-          updateList();
-          drawConnectorLine();
-        });
-      };
-
-      bind(categoryGroup, 'category');
-      bind(tagGroup, 'tag');
-      setActive(categoryGroup, state.category);
-      setActive(tagGroup, state.tag);
-      updateList();
-      drawConnectorLine();
+    function normTags(raw) {
+      return (raw || '')
+        .split(',')
+        .map(s => s.trim())
+        .filter(Boolean);
     }
 
     function randomLineColor(){
       const hue = Math.floor(Math.random() * 360);
-      const sat = 75 + Math.random() * 20;
-      const light = 35 + Math.random() * 20;
+      const sat = 70 + Math.random() * 25;   // 70–95
+      const light = 35 + Math.random() * 20; // 35–55
       return `hsl(${hue} ${sat}% ${light}%)`;
     }
 
-    function drawConnectorLine() {
-      const stackEl = document.getElementById('filterStack');
-      const categoryGroup = document.getElementById('categoryGroup');
-      const tagGroup = document.getElementById('tagGroup');
-      const path = document.getElementById('connector');
-      if (!stackEl || !categoryGroup || !tagGroup || !path) return;
+    function setActive(groupEl, value){
+      groupEl.querySelectorAll('.pill').forEach(btn => {
+        btn.classList.toggle('is-active', btn.dataset.filter === value);
+      });
+    }
 
-      const a = categoryGroup.querySelector('.pill.is-active');
-      const b = tagGroup.querySelector('.pill.is-active');
-      if (!a || !b) { path.setAttribute('d',''); return; }
+    function getState(){
+      const cat = document.querySelector('#categoryCol .pill.is-active')?.dataset.filter || '';
+      const tag = document.querySelector('#tagCol .pill.is-active')?.dataset.filter || '';
+      return { cat, tag };
+    }
 
-      const fr = stackEl.getBoundingClientRect();
-      const ra = a.getBoundingClientRect();
-      const rb = b.getBoundingClientRect();
+    function updateList(){
+      const { cat, tag } = getState();
+      document.querySelectorAll('.work-row').forEach(row => {
+        const c = row.getAttribute('data-category') || '';
+        const tags = normTags(row.getAttribute('data-tags'));
+        row.style.display = (c === cat && tags.includes(tag)) ? '' : 'none';
+      });
+    }
 
-      // stroke width in px (vector-effect: non-scaling-stroke)
-      const swPx = parseFloat(getComputedStyle(path).strokeWidth) || 1.6;
+    function tagsAvailableForCategory(category){
+      const set = new Set();
+      document.querySelectorAll('.work-row').forEach(row => {
+        const c = row.getAttribute('data-category') || '';
+        if (c !== category) return;
+        normTags(row.getAttribute('data-tags')).forEach(t => set.add(t));
+      });
+      return Array.from(set);
+    }
 
-      // padding per far “toccare” il bordo e non entrare dentro
-      const padXPct = ((swPx / 2) / fr.width) * 100;
+    function pctFromRect(fr, r, x, y){
+      return {
+        x: ((x - fr.left) / fr.width) * 100,
+        y: ((y - fr.top) / fr.height) * 100
+      };
+    }
 
-      // START: bordo destro del bottone sinistro (metà altezza)
-      const x1 = ((ra.right - fr.left) / fr.width) * 100 + padXPct;
-      const y1 = ((ra.top + ra.height/2 - fr.top) / fr.height) * 100;
+    function drawLines(){
+      const panel = document.getElementById('filterPanel');
+      const linesGroup = document.getElementById('linesGroup');
+      const catCol = document.getElementById('categoryCol');
+      const tagCol = document.getElementById('tagCol');
+      if (!panel || !linesGroup || !catCol || !tagCol) return;
 
-      // END: bordo sinistro del bottone destro (metà altezza)
-      const x2 = ((rb.left - fr.left) / fr.width) * 100 - padXPct;
-      const y2 = ((rb.top + rb.height/2 - fr.top) / fr.height) * 100;
+      const fr = panel.getBoundingClientRect();
 
-      // colore random ad ogni redraw
-      path.style.stroke = randomLineColor();
+      // pulisci
+      while (linesGroup.firstChild) linesGroup.removeChild(linesGroup.firstChild);
 
-      // linea “quasi” dritta: una leggera curva controllata (molto pulita)
-      const mx = (x1 + x2) / 2;
-      const c1x = mx;
-      const c1y = y1;
-      const c2x = mx;
-      const c2y = y2;
+      const activeCatBtn = catCol.querySelector('.pill.is-active');
+      if (!activeCatBtn) return;
 
-      const d = `M ${x1.toFixed(2)} ${y1.toFixed(2)} C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${x2.toFixed(2)} ${y2.toFixed(2)}`;
-      path.setAttribute('d', d);
+      const category = activeCatBtn.dataset.filter;
+      const available = tagsAvailableForCategory(category);
+
+      // se non ci sono lavori, niente linee
+      if (!available.length) return;
+
+      // punto di partenza: bordo DESTRO del bottone categoria (a metà altezza)
+      const ra = activeCatBtn.getBoundingClientRect();
+      const start = pctFromRect(fr, ra, ra.right, ra.top + ra.height / 2);
+
+      // per ogni tag disponibile: collega al bordo SINISTRO del bottone tag
+      available.forEach((tagName) => {
+        const tagBtn = tagCol.querySelector(`.pill[data-filter="${CSS.escape(tagName)}"]`);
+        if (!tagBtn) return;
+
+        const rb = tagBtn.getBoundingClientRect();
+        const end = pctFromRect(fr, rb, rb.left, rb.top + rb.height / 2);
+
+        const color = randomLineColor();
+
+        // curva pulita (non scarabocchio): cubic con controlli morbidi
+        const dx = Math.max(0.001, end.x - start.x);
+        const c1x = start.x + dx * 0.45;
+        const c1y = start.y;
+        const c2x = end.x - dx * 0.45;
+        const c2y = end.y;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', color);
+        path.setAttribute('stroke-width', '0.35'); // in viewBox units (non-scaling visivo grazie al CSS)
+        path.setAttribute('vector-effect', 'non-scaling-stroke');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('stroke-linejoin', 'round');
+        path.setAttribute('d', `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`);
+        linesGroup.appendChild(path);
+      });
+    }
+
+    function bindFilters(){
+      const catCol = document.getElementById('categoryCol');
+      const tagCol = document.getElementById('tagCol');
+      if (!catCol || !tagCol) return;
+
+      catCol.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-filter]');
+        if (!btn) return;
+        setActive(catCol, btn.dataset.filter);
+
+        // quando cambi categoria: se il tag attivo non esiste per quella categoria,
+        // manteniamo il primo tag disponibile (per evitare “lista vuota”)
+        const { cat, tag } = getState();
+        const available = tagsAvailableForCategory(cat);
+        if (available.length && !available.includes(tag)){
+          setActive(tagCol, available[0]);
+        }
+
+        updateList();
+        drawLines();
+      });
+
+      tagCol.addEventListener('click', (e) => {
+        const btn = e.target.closest('button[data-filter]');
+        if (!btn) return;
+        setActive(tagCol, btn.dataset.filter);
+        updateList();
+        drawLines();
+      });
     }
 
     (function init(){
-      setupFilters();
+      bindFilters();
+      updateList();
+      drawLines();
 
       window.addEventListener('resize', () => {
-        drawConnectorLine();
+        drawLines();
       });
     })();
   </script>
-
 </body>
 </html>
