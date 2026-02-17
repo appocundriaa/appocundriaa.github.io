@@ -14,8 +14,8 @@
   --text:#0b0b0b;
   --muted:#8a8a8a;
 
-  --panel:#dfe4ea;   /* grigio SOLO lavori */
-  --pill:#3b9a2f;    /* verde bottoni */
+  --panel:#dfe4ea;
+  --pill:#3b9a2f;
   --link-blue:#1a0dab;
   --link-red:#ff0000;
   --footer-purple:#8b3fb3;
@@ -32,7 +32,7 @@ body{
 }
 
 /* LAYOUT */
-.header{ padding: 14px 0 0; }
+.header{ padding: 16px 0 0; }
 
 .header-grid{
   display: grid;
@@ -46,7 +46,7 @@ body{
   padding: 0 8px;
 }
 
-/* BIO (più piccolo/compatto) */
+/* BIO */
 .bio{
   width: 100%;
   max-width: 720px;
@@ -57,8 +57,9 @@ body{
   font-style: italic;
 }
 
+/* ✅ PIÙ SPAZIO DOPO LA BIO */
 .descriptor{
-  margin: 18px 0 12px;
+  margin: 26px 0 16px;   /* prima era più stretto */
   color: var(--muted);
   font-size: 14px;
   text-align: center;
@@ -69,7 +70,7 @@ body{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 0 0 10px;
+  margin: 0 0 18px;     /* ✅ più spazio sotto i contatti */
 }
 
 .contact-link-wrapper{
@@ -89,24 +90,24 @@ body{
 .link:hover{ opacity:.85; }
 .sep{ color: var(--muted); }
 
-/* FILTRI (niente box grigio) */
+/* FILTRI */
 .filters{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 0 0 10px;
+  margin: 0 0 14px;   /* ✅ aria sopra/sotto filtri */
 }
 
 .filter-panel{
   width: min(760px, 92vw);
-  padding: 6px 4px;
+  padding: 8px 4px;   /* leggermente più arioso */
   position: relative;
 }
 
 .filter-cols{
   display:flex;
   justify-content: space-between;
-  gap: 40px;
+  gap: 44px;          /* più respiro tra le due colonne */
   position: relative;
   z-index: 1;
 }
@@ -114,7 +115,7 @@ body{
 .filter-col{
   display:flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;          /* più spazio verticale tra pillole */
 }
 
 .pill{
@@ -135,7 +136,7 @@ body{
   outline: 2px solid rgba(0,0,0,.10);
 }
 
-/* LINEA (pulita) */
+/* LINEA */
 .filter-line{
   position:absolute;
   inset: 0;
@@ -160,11 +161,11 @@ body{
   justify-content:center;
 }
 
-/* ✅ BOX GRIGIO SOLO QUI */
+/* BOX GRIGIO LAVORI */
 .work-panel{
   width: min(920px, 92vw);
   background: var(--panel);
-  padding: 14px 16px 10px;
+  padding: 16px 16px 12px;
 }
 
 .work-row{
@@ -221,10 +222,10 @@ body{
 /* RESPONSIVE */
 @media (max-width: 720px){
   .bio{ font-size: 16px; }
-  .descriptor{ font-size: 13px; margin: 14px 0 10px; }
-  .contact-link-wrapper{ font-size: 12px; }
+  .descriptor{ font-size: 13px; margin: 22px 0 14px; }
+  .contact-wrapper{ margin-bottom: 16px; }
 
-  .filter-cols{ gap: 16px; }
+  .filter-cols{ gap: 18px; }
   .pill{ min-width: 145px; font-size: 11px; padding: 8px 10px; }
 
   .work-row{ grid-template-columns: 110px 1fr; }
