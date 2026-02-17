@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -15,7 +14,7 @@
 
       <div class="header-content">
 
-        <!-- BIO (TESTO VISIBILE) -->
+        <!-- BIO -->
         <p class="bio" id="bioText">
           Marco Marino moves between products and words, strategy and concept design. A
           designer and independent researcher. He studies the intersection strategies between
@@ -43,13 +42,13 @@
           </div>
         </div>
 
-        <!-- FILTRI (DUE COLONNE VERTICALI) -->
+        <!-- FILTRI (NO BOX GRIGIO) -->
         <section class="filters" aria-label="Filtri">
           <div class="filter-panel" id="filterPanel">
 
-            <!-- Linee (pulite, colori random) -->
-            <svg class="filter-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-              <g id="linesGroup"></g>
+            <!-- LINEA (solo 1, togglable) -->
+            <svg class="filter-line" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+              <path id="linkLine" d="" fill="none"></path>
             </svg>
 
             <div class="filter-cols">
@@ -80,23 +79,20 @@
   </header>
 
   <main class="page-content">
+    <!-- ✅ BOX GRIGIO SOLO QUI -->
     <section class="work-panel" aria-label="Lavori">
-      <!-- Esempi: qui puoi aggiungere/duplicare righe mantenendo data-category e data-tags -->
       <article class="work-row" data-category="Writer" data-tags="Fashion,Art,Culture" data-label="IMAGE">
         <div class="work-year">2025</div>
-
         <div class="work-title">
           <a class="work-link" href="#" target="_blank" rel="noreferrer">
             NSS —→ The Utopia of The Row’s resort 2026 collection
           </a>
         </div>
-
         <div class="work-label">
           <a class="work-label-link" href="#" target="_blank" rel="noreferrer">IMAGE</a>
         </div>
       </article>
 
-      <!-- anni “vuoti” come nel PDF -->
       <div class="work-year-only">2024</div>
       <div class="work-year-only">2023</div>
       <div class="work-year-only">2022</div>
@@ -111,26 +107,14 @@
   </main>
 
   <script>
-    // =======================
-    // FILTERS + LINES (PDF-style)
-    // - Filtra i lavori per (category + tag)
-    // - Disegna linee multiple: dalla categoria attiva verso tutti i TAG che hanno almeno 1 lavoro
-    //   nella categoria selezionata (così ottieni 2-3 linee come nel PDF)
-    // - Colori random ogni volta che clicchi / resize
-    // =======================
+    // =========================
+    // STATE: linea togglable
+    // - click categoria: seleziona, linea OFF
+    // - click tag: seleziona, linea ON; se riclicchi lo stesso tag => toggle OFF
+    // =========================
 
-    function normTags(raw) {
-      return (raw || '')
-        .split(',')
-        .map(s => s.trim())
-        .filter(Boolean);
-    }
-
-    function randomLineColor(){
-      const hue = Math.floor(Math.random() * 360);
-      const sat = 70 + Math.random() * 25;   // 70–95
-      const light = 35 + Math.random() * 20; // 35–55
-      return `hsl(${hue} ${sat}% ${light}%)`;
+    function normTags(raw){
+      return (raw || '').split(',').map(s => s.trim()).filter(Boolean);
     }
 
     function setActive(groupEl, value){
@@ -139,132 +123,123 @@
       });
     }
 
-    function getState(){
-      const cat = document.querySelector('#categoryCol .pill.is-active')?.dataset.filter || '';
-      const tag = document.querySelector('#tagCol .pill.is-active')?.dataset.filter || '';
-      return { cat, tag };
+    function getActive(groupSel){
+      return document.querySelector(groupSel + ' .pill.is-active')?.dataset.filter || '';
     }
 
     function updateList(){
-      const { cat, tag } = getState();
-      document.querySelectorAll('.work-row').forEach(row => {
+      const cat = getActive('#categoryCol');
+      const tag = getActive('#tagCol');
+
+      document.querySelectorAll('.work-row').forEach((row) => {
         const c = row.getAttribute('data-category') || '';
         const tags = normTags(row.getAttribute('data-tags'));
         row.style.display = (c === cat && tags.includes(tag)) ? '' : 'none';
       });
     }
 
-    function tagsAvailableForCategory(category){
-      const set = new Set();
-      document.querySelectorAll('.work-row').forEach(row => {
-        const c = row.getAttribute('data-category') || '';
-        if (c !== category) return;
-        normTags(row.getAttribute('data-tags')).forEach(t => set.add(t));
-      });
-      return Array.from(set);
+    function randomLineColor(){
+      const hue = Math.floor(Math.random() * 360);
+      const sat = 70 + Math.random() * 25;
+      const light = 35 + Math.random() * 20;
+      return `hsl(${hue} ${sat}% ${light}%)`;
     }
 
-    function pctFromRect(fr, r, x, y){
+    function pct(fr, x, y){
       return {
         x: ((x - fr.left) / fr.width) * 100,
         y: ((y - fr.top) / fr.height) * 100
       };
     }
 
-    function drawLines(){
+    function drawLineIfOn(){
       const panel = document.getElementById('filterPanel');
-      const linesGroup = document.getElementById('linesGroup');
+      const path = document.getElementById('linkLine');
       const catCol = document.getElementById('categoryCol');
       const tagCol = document.getElementById('tagCol');
-      if (!panel || !linesGroup || !catCol || !tagCol) return;
+      if (!panel || !path || !catCol || !tagCol) return;
+
+      if (!window.__lineOn){
+        path.setAttribute('d','');
+        return;
+      }
+
+      const a = catCol.querySelector('.pill.is-active');
+      const b = tagCol.querySelector('.pill.is-active');
+      if (!a || !b){
+        path.setAttribute('d','');
+        return;
+      }
 
       const fr = panel.getBoundingClientRect();
+      const ra = a.getBoundingClientRect();
+      const rb = b.getBoundingClientRect();
 
-      // pulisci
-      while (linesGroup.firstChild) linesGroup.removeChild(linesGroup.firstChild);
+      // ✅ attacco: bordo destro categoria + bordo sinistro tag
+      const start = pct(fr, ra.right, ra.top + ra.height/2);
+      const end   = pct(fr, rb.left,  rb.top + rb.height/2);
 
-      const activeCatBtn = catCol.querySelector('.pill.is-active');
-      if (!activeCatBtn) return;
+      // curva “pulita”
+      const dx = Math.max(0.001, end.x - start.x);
+      const c1x = start.x + dx * 0.45;
+      const c1y = start.y;
+      const c2x = end.x - dx * 0.45;
+      const c2y = end.y;
 
-      const category = activeCatBtn.dataset.filter;
-      const available = tagsAvailableForCategory(category);
-
-      // se non ci sono lavori, niente linee
-      if (!available.length) return;
-
-      // punto di partenza: bordo DESTRO del bottone categoria (a metà altezza)
-      const ra = activeCatBtn.getBoundingClientRect();
-      const start = pctFromRect(fr, ra, ra.right, ra.top + ra.height / 2);
-
-      // per ogni tag disponibile: collega al bordo SINISTRO del bottone tag
-      available.forEach((tagName) => {
-        const tagBtn = tagCol.querySelector(`.pill[data-filter="${CSS.escape(tagName)}"]`);
-        if (!tagBtn) return;
-
-        const rb = tagBtn.getBoundingClientRect();
-        const end = pctFromRect(fr, rb, rb.left, rb.top + rb.height / 2);
-
-        const color = randomLineColor();
-
-        // curva pulita (non scarabocchio): cubic con controlli morbidi
-        const dx = Math.max(0.001, end.x - start.x);
-        const c1x = start.x + dx * 0.45;
-        const c1y = start.y;
-        const c2x = end.x - dx * 0.45;
-        const c2y = end.y;
-
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('fill', 'none');
-        path.setAttribute('stroke', color);
-        path.setAttribute('stroke-width', '0.35'); // in viewBox units (non-scaling visivo grazie al CSS)
-        path.setAttribute('vector-effect', 'non-scaling-stroke');
-        path.setAttribute('stroke-linecap', 'round');
-        path.setAttribute('stroke-linejoin', 'round');
-        path.setAttribute('d', `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`);
-        linesGroup.appendChild(path);
-      });
+      path.style.stroke = randomLineColor();
+      path.setAttribute('d',
+        `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} ` +
+        `C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`
+      );
     }
 
-    function bindFilters(){
+    function initFilters(){
       const catCol = document.getElementById('categoryCol');
       const tagCol = document.getElementById('tagCol');
       if (!catCol || !tagCol) return;
 
+      window.__lineOn = false;
+      updateList();
+      drawLineIfOn();
+
       catCol.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-filter]');
         if (!btn) return;
+
         setActive(catCol, btn.dataset.filter);
 
-        // quando cambi categoria: se il tag attivo non esiste per quella categoria,
-        // manteniamo il primo tag disponibile (per evitare “lista vuota”)
-        const { cat, tag } = getState();
-        const available = tagsAvailableForCategory(cat);
-        if (available.length && !available.includes(tag)){
-          setActive(tagCol, available[0]);
-        }
+        // ✅ cambi categoria => linea OFF finché non clicchi un tag
+        window.__lineOn = false;
 
         updateList();
-        drawLines();
+        drawLineIfOn();
       });
 
       tagCol.addEventListener('click', (e) => {
         const btn = e.target.closest('button[data-filter]');
         if (!btn) return;
-        setActive(tagCol, btn.dataset.filter);
+
+        const currentTag = getActive('#tagCol');
+        const nextTag = btn.dataset.filter;
+
+        // se clicchi lo stesso tag e la linea è ON => toggle OFF
+        if (currentTag === nextTag && window.__lineOn){
+          window.__lineOn = false;
+        } else {
+          setActive(tagCol, nextTag);
+          window.__lineOn = true;
+        }
+
         updateList();
-        drawLines();
+        drawLineIfOn();
+      });
+
+      window.addEventListener('resize', () => {
+        drawLineIfOn();
       });
     }
 
-    (function init(){
-      bindFilters();
-      updateList();
-      drawLines();
-
-      window.addEventListener('resize', () => {
-        drawLines();
-      });
-    })();
+    initFilters();
   </script>
 </body>
 </html>
