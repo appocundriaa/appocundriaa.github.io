@@ -39,7 +39,7 @@ body{
 }
 
 /* Header */
-.header{ padding: 10px 0 0; } /* ⬅️ meno spazio sopra */
+.header{ padding: 18px 0 0; }
 
 .header-grid{
   display: grid;
@@ -53,48 +53,96 @@ body{
   padding: 0 10px;
 }
 
-/* T-SHIRT */
-.tshirt-wrap{
-  width: min(520px, 86vw);   /* ⬅️ un pelo più piccola */
-  margin-top: 0px;           /* ⬅️ meno spazio sopra */
-  margin-bottom: 6px;        /* ⬅️ meno spazio sotto */
-  display: grid;
-  place-items: center;
-}
-
-.tshirt-svg{
+/* Bio block (al posto della maglietta) */
+.bio-block{
   width: 100%;
-  height: auto;
-  display: block;
+  max-width: 980px;
+  margin-top: 6px;
+  text-align: center;
 }
 
-/* foreignObject wrapper (legacy) */
-.tshirt-fo{
+.bio-block p{
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text);
+}
+
+/* Filtri */
+.filters{
+  margin-top: 18px;
+  width: 100%;
+  display: grid;
+  justify-items: center;
+}
+
+.filter-stack{
+  width: 100%;
+  max-width: 980px;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: start;
+  justify-items: center;
+  padding: 10px 0 0;
+}
+
+/* Colonne verticali */
+.filter-col{
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+/* Bottoni */
+.pill{
+  appearance: none;
+  background: transparent;
+  border: 1px solid var(--pill-border);
+  padding: 6px 16px;
+  border-radius: 0;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.pill.is-active{
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
+
+/* Linea */
+.filter-connector{
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 0;
+  pointer-events: none;
 }
 
-/* legacy */
-.tshirt-text{
-  width: 100%;
-  text-align: center;
-  letter-spacing: -0.01em;
+#connector{
+  stroke-width: 1.6;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.95;
 }
 
-/* legacy */
-.tline{
-  white-space: nowrap;
-  overflow: visible;
+/* Riga in mezzo */
+.midline{
+  margin: 18px 0 8px;
   text-align: center;
+  font-size: 12px;
+  color: var(--muted);
 }
 
 /* Contatti */
 .contact-wrapper{
-  margin-top: 4px; /* ⬅️ leggermente più stretto */
+  margin-top: 6px;
   text-align: center;
 }
 
@@ -123,70 +171,9 @@ body{
 .link:hover{ opacity: .85; }
 .sep{ color: var(--muted); }
 
-/* Filtri */
-.filters{
-  margin-top: 18px;
-  width: 100%;
-  display: grid;
-  justify-items: center;
-}
-
-.filter-stack{
-  width: 100%;
-  max-width: 980px;
-  position: relative;
-  display: grid;
-  justify-items: center;
-  gap: 52px; /* più spazio tra categorie e subcategorie */
-  padding: 6px 0 0;
-}
-
-.filter-group{
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-}
-
-.pill{
-  appearance: none;
-  background: transparent;
-  border: 1px solid var(--pill-border);
-  padding: 6px 16px;
-  border-radius: 0;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text);
-}
-
-.pill.is-active{
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-/* scarabocchio */
-.filter-connector{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-#scribble{
-  stroke: #000;
-  stroke-width: 1.25;
-  vector-effect: non-scaling-stroke;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.9;
-}
-
 /* Main */
 .page-content{
-  margin-top: 38px;
+  margin-top: 36px;
   padding-bottom: 40px;
 }
 
@@ -234,8 +221,9 @@ body{
   font-weight: 600;
 }
 
+/* Mobile */
 @media (max-width: 520px){
   .work-row{ grid-template-columns: 90px 1fr 0px; }
   .work-year{ padding-left: 12px; }
-  .tshirt-wrap{ width: min(500px, 90vw); }
+  .filter-stack{ gap: 28px; }
 }
