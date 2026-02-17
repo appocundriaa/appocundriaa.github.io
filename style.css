@@ -1,3 +1,4 @@
+/* style.css */
 @font-face{
   font-family: "KeroinePRO";
   src:
@@ -10,220 +11,226 @@
 }
 
 :root{
-  --bg: #ffffff;
-  --text: #0b0b0b;
-  --muted: #3a3a3a;
-  --pill-border: rgba(0,0,0,.35);
+  --bg:#ffffff;
+  --text:#0b0b0b;
+  --muted:#8a8a8a;
+
+  --panel:#dfe4ea;      /* grigio box filtri + lavori */
+  --pill:#3b9a2f;       /* verde bottoni */
+  --link-blue:#1a0dab;
+  --link-red:#ff0000;
+  --footer-purple:#8b3fb3;
 }
 
 *{ box-sizing: border-box; }
 
 body{
   margin: 0;
-  font-family: "KeroinePRO", "General Sans", Arial, sans-serif;
+  font-family: "KeroinePRO","General Sans",Arial,sans-serif;
   font-weight: 600;
   background: var(--bg);
   color: var(--text);
 }
 
-.sr-only{
-  position:absolute!important;
-  width:1px!important;
-  height:1px!important;
-  padding:0!important;
-  margin:-1px!important;
-  overflow:hidden!important;
-  clip:rect(0,0,0,0)!important;
-  white-space:nowrap!important;
-  border:0!important;
-}
-
-/* Header */
-.header{ padding: 18px 0 0; }
+/* HEADER GRID */
+.header{ padding: 28px 0 0; }
 
 .header-grid{
   display: grid;
-  grid-template-columns: minmax(16px, 1fr) minmax(280px, 980px) minmax(16px, 1fr);
+  grid-template-columns: minmax(16px, 1fr) minmax(280px, 860px) minmax(16px, 1fr);
 }
 
 .header-content{
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   padding: 0 10px;
 }
 
-/* Bio block (al posto della maglietta) */
-.bio-block{
+/* BIO */
+.bio{
   width: 100%;
-  max-width: 980px;
-  margin-top: 6px;
-  text-align: center;
-}
-
-.bio-block p{
+  max-width: 760px;
   margin: 0;
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--text);
+  font-size: 22px;
+  line-height: 1.22;
+  letter-spacing: -0.01em;
+  font-style: italic;
 }
 
-/* Filtri */
-.filters{
-  margin-top: 18px;
-  width: 100%;
-  display: grid;
-  justify-items: center;
-}
-
-.filter-stack{
-  width: 100%;
-  max-width: 980px;
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 64px;
-  align-items: start;
-  justify-items: center;
-  padding: 10px 0 0;
-}
-
-/* Colonne verticali */
-.filter-col{
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  align-items: center;
-}
-
-/* Bottoni */
-.pill{
-  appearance: none;
-  background: transparent;
-  border: 1px solid var(--pill-border);
-  padding: 6px 16px;
-  border-radius: 0;
-  font: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  color: var(--text);
-}
-
-.pill.is-active{
-  background: #000;
-  color: #fff;
-  border-color: #000;
-}
-
-/* Linea */
-.filter-connector{
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-#connector{
-  stroke-width: 1.6;
-  vector-effect: non-scaling-stroke;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  opacity: 0.95;
-}
-
-/* Riga in mezzo */
-.midline{
-  margin: 18px 0 8px;
-  text-align: center;
-  font-size: 12px;
+.descriptor{
+  margin: 46px 0 22px;
   color: var(--muted);
+  font-size: 18px;
+  text-align: center;
 }
 
-/* Contatti */
+/* CONTATTI */
 .contact-wrapper{
-  margin-top: 6px;
-  text-align: center;
-}
-
-.role{
-  margin: 0 0 6px 0;
-  font-size: 12px;
-  color: var(--muted);
-  font-weight: 600;
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin: 0 0 22px;
 }
 
 .contact-link-wrapper{
-  display: flex;
+  display:flex;
+  gap: 12px;
+  align-items:center;
   flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  font-size: 12px;
-  font-weight: 600;
+  justify-content:center;
+  font-size: 16px;
 }
 
 .link{
-  color: #1a0dab;
+  color: var(--link-blue);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.link:hover{ opacity: .85; }
+.link:hover{ opacity:.85; }
 .sep{ color: var(--muted); }
 
-/* Main */
-.page-content{
-  margin-top: 36px;
-  padding-bottom: 40px;
+/* FILTERS */
+.filters{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+  margin: 0 0 0;
 }
 
-.work-grid{
+.filter-panel{
+  width: min(980px, 92vw);
+  background: var(--panel);
+  padding: 34px 26px;
+  position: relative;
+}
+
+.filter-cols{
+  display:flex;
+  justify-content: space-between;
+  gap: 80px;
+}
+
+.filter-col{
+  display:flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pill{
+  appearance:none;
+  border: none;
+  background: var(--pill);
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  padding: 12px 16px;
+  min-width: 180px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.pill.is-active{
+  outline: 2px solid rgba(0,0,0,.12);
+}
+
+/* linee sopra ai bottoni */
+.filter-lines{
+  position:absolute;
+  inset: 0;
   width: 100%;
-  display: grid;
-  gap: 6px;
+  height: 100%;
+  pointer-events:none;
+  z-index: 2;
+}
+
+/* assicura che bottoni stiano sopra il pannello ma sotto le linee? (linee devono passare davanti) */
+.filter-cols{ position: relative; z-index: 1; }
+
+/* MAIN / WORKS */
+.page-content{
+  padding: 0 0 18px;
+  display:flex;
+  justify-content:center;
+}
+
+.work-panel{
+  width: min(980px, 92vw);
+  background: var(--panel);
+  padding: 36px 26px 22px;
 }
 
 .work-row{
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(70px, 1fr) minmax(280px, 980px) minmax(70px, 1fr);
+  display:grid;
+  grid-template-columns: 180px 1fr 140px;
   align-items: baseline;
-  padding: 2px 0;
+  gap: 16px;
+  padding: 10px 0 34px;
 }
 
 .work-year{
-  justify-self: start;
-  padding-left: 16px;
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 44px;
   font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .work-title{
-  justify-self: center;
-  text-align: center;
-  padding: 0 10px;
+  padding-top: 10px;
 }
 
 .work-link{
-  color: #1a0dab;
+  color: var(--link-red);
   text-decoration: underline;
   text-underline-offset: 2px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 16px;
 }
 
+.work-label{
+  text-align: right;
+  padding-top: 14px;
+}
+
+.work-label-link{
+  color: var(--link-red);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-size: 16px;
+}
+
+/* anni “solo anno” */
+.work-year-only{
+  font-size: 44px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  padding: 28px 0;
+}
+
+/* FOOTER */
 .footer{
-  margin-top: 28px;
-  font-size: 12px;
-  color: var(--muted);
-  text-align: center;
-  font-weight: 600;
+  margin-top: 24px;
+  text-align:center;
+  color: var(--footer-purple);
+  font-size: 14px;
 }
 
-/* Mobile */
-@media (max-width: 520px){
-  .work-row{ grid-template-columns: 90px 1fr 0px; }
-  .work-year{ padding-left: 12px; }
-  .filter-stack{ gap: 28px; }
+/* RESPONSIVE */
+@media (max-width: 720px){
+  .bio{ font-size: 18px; }
+  .descriptor{ font-size: 16px; margin-top: 32px; }
+  .contact-link-wrapper{ font-size: 14px; }
+
+  .filter-cols{
+    gap: 26px;
+  }
+  .pill{
+    min-width: 150px;
+    font-size: 13px;
+  }
+
+  .work-row{
+    grid-template-columns: 120px 1fr;
+  }
+  .work-label{ display:none; }
+  .work-year, .work-year-only{ font-size: 36px; }
 }
