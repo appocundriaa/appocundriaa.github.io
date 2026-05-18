@@ -610,157 +610,201 @@
   </main>
 
   <script>
-    function normList(raw){
-      return (raw || '').split(',').map(s => s.trim()).filter(Boolean);
-    }
+  function normList(raw){
+    return (raw || '').split(',').map(s => s.trim()).filter(Boolean);
+  }
 
-    function setActive(groupEl, value){
-      groupEl.querySelectorAll('.pill').forEach(btn => {
-        btn.classList.toggle('is-active', btn.dataset.filter === value);
-      });
-    }
+  function setActive(groupEl, value){
+    groupEl.querySelectorAll('.pill').forEach(btn => {
+      btn.classList.toggle('is-active', btn.dataset.filter === value);
+    });
+  }
 
-    function clearActive(groupEl){
-      groupEl.querySelectorAll('.pill').forEach(btn => {
-        btn.classList.remove('is-active');
-      });
-    }
+  function clearActive(groupEl){
+    groupEl.querySelectorAll('.pill').forEach(btn => {
+      btn.classList.remove('is-active');
+    });
+  }
 
-    function getActive(groupSel){
-      return document.querySelector(groupSel + ' .pill.is-active')?.dataset.filter || '';
-    }
+  function getActive(groupSel){
+    return document.querySelector(groupSel + ' .pill.is-active')?.dataset.filter || '';
+  }
 
-    function updateList(){
-      const cat = getActive('#categoryCol');
-      const tag = getActive('#tagCol');
+  function getStartYear(row){
+    const yearText = row.querySelector('.work-year')?.textContent || '';
 
-      document.querySelectorAll('.work-row').forEach((row) => {
-        if (!cat || !tag) {
-          row.style.display = 'none';
-          return;
-        }
+    // prende sempre il primo anno a 4 cifre:
+    // 2024–2026 => 2024
+    // 2020-2025 => 2020
+    // 2026 => 2026
+    const match = yearText.match(/\d{4}/);
+    return match ? parseInt(match[0], 10) : 0;
+  }
 
-        const categories = normList(row.getAttribute('data-category'));
-        const tags = normList(row.getAttribute('data-tags'));
+  function sortWorkRowsChronologically(){
+    const panel = document.querySelector('.work-panel');
+    const footer = panel?.querySelector('.footer');
+    if (!panel || !footer) return;
 
-        const matchesCategory = categories.includes(cat);
-        const matchesTag = tags.includes(tag);
+    const rows = Array.from(panel.querySelectorAll('.work-row'));
 
-        row.style.display = (matchesCategory && matchesTag) ? '' : 'none';
-      });
-    }
+    rows.forEach((row, index) => {
+      if (!row.dataset.originalOrder) {
+        row.dataset.originalOrder = String(index);
+      }
+    });
 
-    function randomLineColor(){
-      const hue = Math.floor(Math.random() * 360);
-      const sat = 70 + Math.random() * 25;
-      const light = 35 + Math.random() * 20;
-      return `hsl(${hue} ${sat}% ${light}%)`;
-    }
+    rows.sort((a, b) => {
+      const yearA = getStartYear(a);
+      const yearB = getStartYear(b);
 
-    function pct(fr, x, y){
-      return {
-        x: ((x - fr.left) / fr.width) * 100,
-        y: ((y - fr.top) / fr.height) * 100
-      };
-    }
+      // più recente sopra
+      if (yearA !== yearB) return yearB - yearA;
 
-    function drawLineIfOn(){
-      const panel = document.getElementById('filterPanel');
-      const path = document.getElementById('linkLine');
-      const catCol = document.getElementById('categoryCol');
-      const tagCol = document.getElementById('tagCol');
-      if (!panel || !path || !catCol || !tagCol) return;
+      // a pari anno, mantiene l’ordine originale
+      return Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
+    });
 
-      if (!window.__lineOn){
-        path.setAttribute('d','');
+    rows.forEach(row => {
+      panel.insertBefore(row, footer);
+    });
+  }
+
+  function updateList(){
+    const cat = getActive('#categoryCol');
+    const tag = getActive('#tagCol');
+
+    sortWorkRowsChronologically();
+
+    document.querySelectorAll('.work-row').forEach((row) => {
+      if (!cat || !tag) {
+        row.style.display = 'none';
         return;
       }
 
-      const a = catCol.querySelector('.pill.is-active');
-      const b = tagCol.querySelector('.pill.is-active');
-      if (!a || !b){
-        path.setAttribute('d','');
-        return;
-      }
+      const categories = normList(row.getAttribute('data-category'));
+      const tags = normList(row.getAttribute('data-tags'));
 
-      const fr = panel.getBoundingClientRect();
-      const ra = a.getBoundingClientRect();
-      const rb = b.getBoundingClientRect();
+      const matchesCategory = categories.includes(cat);
+      const matchesTag = tags.includes(tag);
 
-      const start = pct(fr, ra.right, ra.top + ra.height/2);
-      const end   = pct(fr, rb.left,  rb.top + rb.height/2);
+      row.style.display = (matchesCategory && matchesTag) ? '' : 'none';
+    });
+  }
 
-      const dx = Math.max(0.001, end.x - start.x);
-      const c1x = start.x + dx * 0.45;
-      const c1y = start.y;
-      const c2x = end.x - dx * 0.45;
-      const c2y = end.y;
+  function randomLineColor(){
+    const hue = Math.floor(Math.random() * 360);
+    const sat = 70 + Math.random() * 25;
+    const light = 35 + Math.random() * 20;
+    return `hsl(${hue} ${sat}% ${light}%)`;
+  }
 
-      path.style.stroke = randomLineColor();
-      path.setAttribute('d',
-        `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} ` +
-        `C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`
-      );
+  function pct(fr, x, y){
+    return {
+      x: ((x - fr.left) / fr.width) * 100,
+      y: ((y - fr.top) / fr.height) * 100
+    };
+  }
+
+  function drawLineIfOn(){
+    const panel = document.getElementById('filterPanel');
+    const path = document.getElementById('linkLine');
+    const catCol = document.getElementById('categoryCol');
+    const tagCol = document.getElementById('tagCol');
+    if (!panel || !path || !catCol || !tagCol) return;
+
+    if (!window.__lineOn){
+      path.setAttribute('d','');
+      return;
     }
 
-    function initFilters(){
-      const catCol = document.getElementById('categoryCol');
-      const tagCol = document.getElementById('tagCol');
-      if (!catCol || !tagCol) return;
+    const a = catCol.querySelector('.pill.is-active');
+    const b = tagCol.querySelector('.pill.is-active');
+    if (!a || !b){
+      path.setAttribute('d','');
+      return;
+    }
 
-      window.__lineOn = false;
-      clearActive(catCol);
+    const fr = panel.getBoundingClientRect();
+    const ra = a.getBoundingClientRect();
+    const rb = b.getBoundingClientRect();
+
+    const start = pct(fr, ra.right, ra.top + ra.height/2);
+    const end   = pct(fr, rb.left,  rb.top + rb.height/2);
+
+    const dx = Math.max(0.001, end.x - start.x);
+    const c1x = start.x + dx * 0.45;
+    const c1y = start.y;
+    const c2x = end.x - dx * 0.45;
+    const c2y = end.y;
+
+    path.style.stroke = randomLineColor();
+    path.setAttribute('d',
+      `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} ` +
+      `C ${c1x.toFixed(2)} ${c1y.toFixed(2)} ${c2x.toFixed(2)} ${c2y.toFixed(2)} ${end.x.toFixed(2)} ${end.y.toFixed(2)}`
+    );
+  }
+
+  function initFilters(){
+    const catCol = document.getElementById('categoryCol');
+    const tagCol = document.getElementById('tagCol');
+    if (!catCol || !tagCol) return;
+
+    window.__lineOn = false;
+
+    sortWorkRowsChronologically();
+    clearActive(catCol);
+    clearActive(tagCol);
+    updateList();
+    drawLineIfOn();
+
+    catCol.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
+
+      setActive(catCol, btn.dataset.filter);
       clearActive(tagCol);
+      window.__lineOn = false;
+
       updateList();
       drawLineIfOn();
+    });
 
-      catCol.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-filter]');
-        if (!btn) return;
+    tagCol.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-filter]');
+      if (!btn) return;
 
-        setActive(catCol, btn.dataset.filter);
+      const currentTag = getActive('#tagCol');
+      const nextTag = btn.dataset.filter;
+      const currentCat = getActive('#categoryCol');
+
+      if (!currentCat) {
+        clearActive(tagCol);
+        setActive(tagCol, nextTag);
+        window.__lineOn = false;
+        updateList();
+        drawLineIfOn();
+        return;
+      }
+
+      if (currentTag === nextTag && window.__lineOn){
         clearActive(tagCol);
         window.__lineOn = false;
+      } else {
+        setActive(tagCol, nextTag);
+        window.__lineOn = true;
+      }
 
-        updateList();
-        drawLineIfOn();
-      });
+      updateList();
+      drawLineIfOn();
+    });
 
-      tagCol.addEventListener('click', (e) => {
-        const btn = e.target.closest('button[data-filter]');
-        if (!btn) return;
+    window.addEventListener('resize', () => {
+      drawLineIfOn();
+    });
+  }
 
-        const currentTag = getActive('#tagCol');
-        const nextTag = btn.dataset.filter;
-        const currentCat = getActive('#categoryCol');
-
-        if (!currentCat) {
-          clearActive(tagCol);
-          setActive(tagCol, nextTag);
-          window.__lineOn = false;
-          updateList();
-          drawLineIfOn();
-          return;
-        }
-
-        if (currentTag === nextTag && window.__lineOn){
-          clearActive(tagCol);
-          window.__lineOn = false;
-        } else {
-          setActive(tagCol, nextTag);
-          window.__lineOn = true;
-        }
-
-        updateList();
-        drawLineIfOn();
-      });
-
-      window.addEventListener('resize', () => {
-        drawLineIfOn();
-      });
-    }
-
-    initFilters();
-  </script>
+  initFilters();
+</script>
 </body>
 </html>
