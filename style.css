@@ -176,6 +176,10 @@ body{
   padding: 6px 0 16px;
 }
 
+.work-row.has-year-range{
+  align-items: center;
+}
+
 .work-year{
   font-size: 30px;
   font-weight: 600;
@@ -184,6 +188,10 @@ body{
 
 .work-title{
   padding-top: 6px;
+}
+
+.work-row.has-year-range .work-title{
+  padding-top: 0;
 }
 
 .work-link{
@@ -197,6 +205,10 @@ body{
   text-align: right;
   padding-top: 8px;
   line-height: 1.25;
+}
+
+.work-row.has-year-range .work-label{
+  padding-top: 0;
 }
 
 .work-label-link{
@@ -254,6 +266,10 @@ body{
     grid-template-columns: 88px 1fr;
     gap: 10px;
     padding: 6px 0 14px;
+  }
+
+  .work-row.has-year-range{
+    align-items: center;
   }
 
   .work-label{
