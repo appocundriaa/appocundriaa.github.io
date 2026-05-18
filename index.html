@@ -53,7 +53,7 @@
 
             <div class="filter-cols">
               <div class="filter-col" id="categoryCol" aria-label="Categorie">
-                <button class="pill is-active" data-filter="Strategy" type="button">STRATEGY</button>
+                <button class="pill" data-filter="Strategy" type="button">STRATEGY</button>
                 <button class="pill" data-filter="Special Projects" type="button">SPECIAL PROJECTS</button>
                 <button class="pill" data-filter="Visual and Concept Research" type="button">VISUAL AND CONCEPT RESEARCH</button>
                 <button class="pill" data-filter="Writer" type="button">WRITER</button>
@@ -61,7 +61,7 @@
               </div>
 
               <div class="filter-col" id="tagCol" aria-label="Sottocategorie">
-                <button class="pill is-active" data-filter="Fashion" type="button">FASHION</button>
+                <button class="pill" data-filter="Fashion" type="button">FASHION</button>
                 <button class="pill" data-filter="Art" type="button">ART</button>
                 <button class="pill" data-filter="Culture" type="button">CULTURE</button>
                 <button class="pill" data-filter="Education" type="button">EDUCATION</button>
@@ -610,13 +610,6 @@
   </main>
 
   <script>
-    // =========================
-    // FILTERS
-    // - category/tag supportano valori multipli separati da virgola
-    // - click categoria: seleziona, linea OFF
-    // - click tag: seleziona, linea ON; riclick stesso tag => linea OFF
-    // =========================
-
     function normList(raw){
       return (raw || '').split(',').map(s => s.trim()).filter(Boolean);
     }
@@ -624,6 +617,12 @@
     function setActive(groupEl, value){
       groupEl.querySelectorAll('.pill').forEach(btn => {
         btn.classList.toggle('is-active', btn.dataset.filter === value);
+      });
+    }
+
+    function clearActive(groupEl){
+      groupEl.querySelectorAll('.pill').forEach(btn => {
+        btn.classList.remove('is-active');
       });
     }
 
@@ -636,6 +635,11 @@
       const tag = getActive('#tagCol');
 
       document.querySelectorAll('.work-row').forEach((row) => {
+        if (!cat || !tag) {
+          row.style.display = 'none';
+          return;
+        }
+
         const categories = normList(row.getAttribute('data-category'));
         const tags = normList(row.getAttribute('data-tags'));
 
@@ -705,6 +709,8 @@
       if (!catCol || !tagCol) return;
 
       window.__lineOn = false;
+      clearActive(catCol);
+      clearActive(tagCol);
       updateList();
       drawLineIfOn();
 
@@ -713,6 +719,7 @@
         if (!btn) return;
 
         setActive(catCol, btn.dataset.filter);
+        clearActive(tagCol);
         window.__lineOn = false;
 
         updateList();
@@ -725,8 +732,19 @@
 
         const currentTag = getActive('#tagCol');
         const nextTag = btn.dataset.filter;
+        const currentCat = getActive('#categoryCol');
+
+        if (!currentCat) {
+          clearActive(tagCol);
+          setActive(tagCol, nextTag);
+          window.__lineOn = false;
+          updateList();
+          drawLineIfOn();
+          return;
+        }
 
         if (currentTag === nextTag && window.__lineOn){
+          clearActive(tagCol);
           window.__lineOn = false;
         } else {
           setActive(tagCol, nextTag);
