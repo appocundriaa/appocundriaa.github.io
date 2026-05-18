@@ -632,13 +632,19 @@
 
   function getStartYear(row){
     const yearText = row.querySelector('.work-year')?.textContent || '';
-
-    // prende sempre il primo anno a 4 cifre:
-    // 2024–2026 => 2024
-    // 2020-2025 => 2020
-    // 2026 => 2026
     const match = yearText.match(/\d{4}/);
     return match ? parseInt(match[0], 10) : 0;
+  }
+
+  function isYearRange(row){
+    const yearText = row.querySelector('.work-year')?.textContent || '';
+    return /\d{4}\s*[–-]\s*\d{4}/.test(yearText);
+  }
+
+  function markYearRangeRows(){
+    document.querySelectorAll('.work-row').forEach((row) => {
+      row.classList.toggle('has-year-range', isYearRange(row));
+    });
   }
 
   function sortWorkRowsChronologically(){
@@ -658,10 +664,8 @@
       const yearA = getStartYear(a);
       const yearB = getStartYear(b);
 
-      // più recente sopra
       if (yearA !== yearB) return yearB - yearA;
 
-      // a pari anno, mantiene l’ordine originale
       return Number(a.dataset.originalOrder) - Number(b.dataset.originalOrder);
     });
 
@@ -674,6 +678,7 @@
     const cat = getActive('#categoryCol');
     const tag = getActive('#tagCol');
 
+    markYearRangeRows();
     sortWorkRowsChronologically();
 
     document.querySelectorAll('.work-row').forEach((row) => {
@@ -752,6 +757,7 @@
 
     window.__lineOn = false;
 
+    markYearRangeRows();
     sortWorkRowsChronologically();
     clearActive(catCol);
     clearActive(tagCol);
