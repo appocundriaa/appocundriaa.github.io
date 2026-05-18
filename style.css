@@ -14,7 +14,7 @@
   --text:#0b0b0b;
   --muted:#8a8a8a;
 
-  --panel:#dfe4ea;
+  --panel:#e4e9ef;
   --pill:#3b9a2f;
   --link-blue:#1a0dab;
   --link-red:#ff0000;
@@ -57,9 +57,8 @@ body{
   font-style: italic;
 }
 
-/* 🔥 PIÙ SPAZIO SOTTO LA BIO */
 .descriptor{
-  margin: 38px 0 28px;   /* ← aumentato sia sopra che sotto */
+  margin: 38px 0 28px;
   color: var(--muted);
   font-size: 14px;
   text-align: center;
@@ -70,7 +69,7 @@ body{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 0 0 22px;     /* leggermente più aria */
+  margin: 0 0 22px;
 }
 
 .contact-link-wrapper{
@@ -90,12 +89,12 @@ body{
 .link:hover{ opacity:.85; }
 .sep{ color: var(--muted); }
 
-/* 🔥 FILTRI – PIÙ SPAZIO SOPRA */
+/* FILTRI */
 .filters{
   width: 100%;
   display:flex;
   justify-content:center;
-  margin: 26px 0 18px;   /* ← questo è il punto chiave */
+  margin: 26px 0 18px;
 }
 
 .filter-panel{
@@ -120,20 +119,21 @@ body{
 
 .pill{
   appearance:none;
-  border: none;
+  border: 1px solid #000;
   background: var(--pill);
   color: #fff;
   font: inherit;
   font-size: 12px;
   letter-spacing: 0.06em;
   padding: 9px 12px;
-  min-width: 170px;
+  min-width: 210px;
   text-align: center;
   cursor: pointer;
 }
 
 .pill.is-active{
-  outline: 2px solid rgba(0,0,0,.10);
+  outline: 2px solid #000;
+  outline-offset: 2px;
 }
 
 /* LINEA */
@@ -163,21 +163,21 @@ body{
 
 /* BOX GRIGIO LAVORI */
 .work-panel{
-  width: min(920px, 92vw);
+  width: min(1020px, 94vw);
   background: var(--panel);
   padding: 16px 16px 12px;
 }
 
 .work-row{
   display:grid;
-  grid-template-columns: 140px 1fr 110px;
+  grid-template-columns: 128px 1fr 180px;
   align-items: baseline;
   gap: 14px;
   padding: 6px 0 16px;
 }
 
 .work-year{
-  font-size: 34px;
+  font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.02em;
 }
@@ -196,6 +196,7 @@ body{
 .work-label{
   text-align: right;
   padding-top: 8px;
+  line-height: 1.25;
 }
 
 .work-label-link{
@@ -203,15 +204,21 @@ body{
   text-decoration: underline;
   text-underline-offset: 2px;
   font-size: 13px;
+  white-space: nowrap;
 }
 
-.work-year-only{
-  font-size: 34px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  padding: 10px 0;
+.work-label-sep{
+  color: var(--link-red);
+  font-size: 13px;
 }
 
+.work-label-muted{
+  color: var(--link-red);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+/* FOOTER */
 .footer{
   margin-top: 10px;
   text-align:center;
@@ -222,13 +229,47 @@ body{
 /* RESPONSIVE */
 @media (max-width: 720px){
   .bio{ font-size: 16px; }
-  .descriptor{ margin: 30px 0 24px; font-size: 13px; }
+
+  .descriptor{
+    margin: 30px 0 24px;
+    font-size: 13px;
+  }
+
   .contact-wrapper{ margin-bottom: 18px; }
 
   .filter-cols{ gap: 18px; }
-  .pill{ min-width: 145px; font-size: 11px; padding: 8px 10px; }
 
-  .work-row{ grid-template-columns: 110px 1fr; }
-  .work-label{ display:none; }
-  .work-year, .work-year-only{ font-size: 30px; }
+  .pill{
+    min-width: 145px;
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+
+  .work-panel{
+    width: min(940px, 94vw);
+    padding: 14px 12px 10px;
+  }
+
+  .work-row{
+    grid-template-columns: 88px 1fr;
+    gap: 10px;
+    padding: 6px 0 14px;
+  }
+
+  .work-label{
+    grid-column: 2;
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .work-year{
+    font-size: 24px;
+  }
+
+  .work-link,
+  .work-label-link,
+  .work-label-sep,
+  .work-label-muted{
+    font-size: 12px;
+  }
 }
