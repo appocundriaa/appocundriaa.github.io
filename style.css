@@ -249,12 +249,35 @@ body{
 
   .contact-wrapper{ margin-bottom: 18px; }
 
-  .filter-cols{ gap: 18px; }
+  /* MOBILE FILTERS ONLY */
+  .filters{
+    margin: 26px 0 18px;
+  }
+
+  .filter-panel{
+    width: 94vw;
+    padding: 8px 0;
+  }
+
+  .filter-cols{
+    justify-content: center;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .filter-col{
+    flex: 0 0 38%;
+    width: 38%;
+    gap: 10px;
+  }
 
   .pill{
-    min-width: 145px;
-    font-size: 11px;
-    padding: 8px 10px;
+    width: 100%;
+    min-width: 0;
+    font-size: 10px;
+    line-height: 1.15;
+    letter-spacing: 0.055em;
+    padding: 8px 6px;
   }
 
   .work-panel{
@@ -287,5 +310,21 @@ body{
   .work-label-sep,
   .work-label-muted{
     font-size: 12px;
+  }
+}
+
+@media (max-width: 420px){
+  .filter-cols{
+    gap: 28px;
+  }
+
+  .filter-col{
+    flex-basis: 37%;
+    width: 37%;
+  }
+
+  .pill{
+    font-size: 9.5px;
+    padding: 8px 5px;
   }
 }
