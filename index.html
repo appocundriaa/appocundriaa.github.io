@@ -674,12 +674,26 @@
     });
   }
 
+  function updateWorkPanelState(visibleCount){
+    const panel = document.querySelector('.work-panel');
+    if (!panel) return;
+
+    const hasResults = visibleCount > 0;
+
+    panel.classList.toggle('has-results', hasResults);
+    panel.classList.toggle('is-empty', !hasResults);
+    document.body.classList.toggle('has-results', hasResults);
+    document.body.classList.toggle('is-empty', !hasResults);
+  }
+
   function updateList(){
     const cat = getActive('#categoryCol');
     const tag = getActive('#tagCol');
 
     markYearRangeRows();
     sortWorkRowsChronologically();
+
+    let visibleCount = 0;
 
     document.querySelectorAll('.work-row').forEach((row) => {
       if (!cat || !tag) {
@@ -692,9 +706,14 @@
 
       const matchesCategory = categories.includes(cat);
       const matchesTag = tags.includes(tag);
+      const shouldShow = matchesCategory && matchesTag;
 
-      row.style.display = (matchesCategory && matchesTag) ? '' : 'none';
+      row.style.display = shouldShow ? '' : 'none';
+
+      if (shouldShow) visibleCount++;
     });
+
+    updateWorkPanelState(visibleCount);
   }
 
   function randomLineColor(){
