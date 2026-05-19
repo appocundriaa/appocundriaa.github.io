@@ -260,14 +260,14 @@ body{
   }
 
   .filter-cols{
-    justify-content: center;
+    justify-content: space-between;
     align-items: flex-start;
-    gap: 32px;
+    gap: 0;
   }
 
   .filter-col{
-    flex: 0 0 38%;
-    width: 38%;
+    flex: 0 0 36%;
+    width: 36%;
     gap: 10px;
   }
 
@@ -318,13 +318,9 @@ body{
 }
 
 @media (max-width: 420px){
-  .filter-cols{
-    gap: 28px;
-  }
-
   .filter-col{
-    flex-basis: 37%;
-    width: 37%;
+    flex-basis: 35.5%;
+    width: 35.5%;
   }
 
   .pill{
